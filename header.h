@@ -27,7 +27,7 @@ typedef struct board
 
 void menu();
 void rules();
-void place_token(Board board[][COL], Box player);
+int place_token(Board board[][COL], Box player);
 void board_display(Board board[][COL]);
 void board_create(Board board[][COL]);
 int vertical_checker(Board board[][COL], Box player);

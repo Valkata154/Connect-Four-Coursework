@@ -132,7 +132,7 @@ int vertical_checker(Board board[][COL], Box player)
 }
 
 // Method to place token in the board
-void place_token(Board board[][COL], Box player)
+int place_token(Board board[][COL], Box player)
 {
 	int column = 0;
 	int quit = 0;
@@ -168,6 +168,9 @@ void place_token(Board board[][COL], Box player)
 			}
 		}
 	}
+	
+	// Return the column for undo function
+	return column;
 }
 
 // Method to initialize the empty board with dashes
@@ -249,6 +252,9 @@ int main(void)
 	int choice = 0;
 	int game = 0;
 	int turn = 0;
+	int answer = 0;
+	
+	int last_column = 0;
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -286,18 +292,40 @@ int main(void)
 			// While playing switch turns between players until someone wins
 			while (game == 0)
 			{
+				// PLAYER 1
 				if (turn == 0)
 				{
 					printf("\n-------------------------------\n");
 					printf("-------- PLAYER 1 TURN --------\n");
-					// Place the token
-					place_token(board, player_one);
+					// Place the token and save the column for undo function
+					last_column = place_token(board, player_one);
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
 					board_display(board);
 					printf("-------------------------------\n\n");
+					
+					
+					// Ask the user if they want to undo their move
+					printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
+					scanf("%d", &answer);
+					// If yes find the box
+					if(answer == 1)
+					{
+						for (int row = 0; row <= 5; row++)
+						{
+							// Find the top-most token placed for the given column
+							if (board[row][last_column].token == player_one.token)
+							{
+								// Swap it with a dash
+								board[row][last_column].token = DASH;
+								break;
+							}
+						}
+					}
 					system("cls");
+					
+					
 					// Check if four connect somewhere
 					int win = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
 					if (win > 0)
@@ -314,18 +342,40 @@ int main(void)
 					}
 					// Switch to Player Two
 					turn = 1;
+					answer = 0;
 				}
+				// PLAYER 2
 				else
 				{
 					printf("\n-------------------------------\n");
 					printf("-------- PLAYER 2 TURN --------\n");
-					// Place the token
-					place_token(board, player_two);
+					// Place the token and save the column for undo function
+					last_column = place_token(board, player_two);
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
 					board_display(board);
 					printf("-------------------------------\n\n");
+					
+					
+					// Ask the user if they want to undo their move
+					printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
+					scanf("%d", &answer);
+					// If yes find the box
+					if(answer == 1)
+					{
+						for (int row = 0; row <= 5; row++)
+						{
+							// Find the top-most token placed for the given column
+							if (board[row][last_column].token == player_two.token)
+							{
+								// Swap it with a dash
+								board[row][last_column].token = DASH;
+								break;
+							}
+						}
+					}
+					
 					system("cls");
 					// Check if four connect somewhere
 					int win = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
@@ -343,6 +393,7 @@ int main(void)
 					}
 					// Switch to Player One
 					turn = 0;
+					answer = 0;
 				}
 			}
 			break;
