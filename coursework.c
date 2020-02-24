@@ -1,5 +1,136 @@
 #include "header.h"
 
+// Method to check diagonally for a winner
+int diagonal_checker(Board board[][COL], Box player)
+{
+	int occurances = 0;
+	
+	// From LEFT to RIGHT go through each column
+	for (int column = 0; column <= 6; column++)
+	{
+		// Go through each row
+		for (int row = 5; row >= 0; row--)
+		{
+			// Check the diagonal boxes if they connect
+			for (int i = 0; i < 4; i++)
+			{
+				if (board[row - i][column + i].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 4 connected return that there is a winner
+				if (occurances == 4)
+				{
+					return 1;
+				}
+
+			}
+			// If less than 4 reset the occurances
+			if (occurances < 4)
+			{
+				occurances = 0;
+			}
+		}
+	}
+
+	// From RIGHT to LEFT go through each column
+	for (int column = 6; column >= 0; column--)
+	{
+		// Go through each row
+		for (int row = 5; row >= 0; row--)
+		{
+			// Check the diagonal boxes if they connect
+			for (int i = 0; i < 4; i++)
+			{
+				if (board[row - i][column - i].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 4 connected return that there is a winner
+				if (occurances == 4)
+				{
+					return 1;
+				}
+			}
+			// If less than 4 reset the occurances
+			if (occurances < 4)
+			{
+				occurances = 0;
+			}
+		}
+	}
+	return 0;
+}
+
+
+// Method to check horizontally for a winner
+int horizontal_checker(Board board[][COL], Box player)
+{
+	int occurances = 0;
+
+	// Go through each row
+	for (int row = 5; row >= 0; row--)
+	{
+		// Go through each column
+		for (int column = 6; column >= 0; column--)
+		{
+			// Check the side boxes if they connect
+			for (int i = 0; i < 4; i++)
+			{
+				if (board[row][column - i].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 4 connected return that there is a winner
+				if (occurances == 4)
+				{
+					return 1;
+				}
+			}
+			// If less than 4 reset the occurances
+			if (occurances < 4)
+			{
+				occurances = 0;
+			}
+		}
+	}
+	return 0;
+}
+
+// Method to check vertically for a winner
+int vertical_checker(Board board[][COL], Box player)
+{
+	int occurances = 0;
+
+	// Go through each column
+	for (int column = 6; column >= 0; column--)
+	{
+		// Go through each row
+		for (int row = 5; row >= 0; row--)
+		{
+			// Check the lower boxes if they connect
+			for (int i = 0; i < 4; i++)
+			{
+				if (board[row - i][column].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 4 connected return that there is a winner
+				if (occurances == 4)
+				{
+					return 1;
+				}
+			}
+			// If less than 4 reset the occurances
+			if (occurances < 4)
+			{
+				occurances = 0;
+			}
+		}
+	}
+	return 0;
+}
+
 // Method to place token in the board
 void place_token(Board board[][COL], Box player)
 {
@@ -159,6 +290,20 @@ int main(void)
 					board_display(board);
 					printf("-------------------------------\n\n");
 					system("cls");
+					// Check if four connect somewhere
+					int win = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
+					if (win > 0)
+					{
+						// Print message to the winner
+						printf("-------------------------------\n");
+						printf("--- PLAYER 1 IS THE WINNER! ---\n");
+						printf("-------------------------------\n\n");
+						// Display the board
+						board_display(board);
+						printf("-------------------------------\n\n");
+						system("pause");
+						break;
+					}
 					// Switch to Player Two
 					turn = 1;
 				}
@@ -174,10 +319,25 @@ int main(void)
 					board_display(board);
 					printf("-------------------------------\n\n");
 					system("cls");
+					// Check if four connect somewhere
+					int win = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
+					if (win > 0)
+					{
+						// Print message to the winner
+						printf("-------------------------------\n");
+						printf("--- PLAYER 2 IS THE WINNER! ---\n");
+						printf("-------------------------------\n\n");
+						// Display the board
+						board_display(board);
+						printf("-------------------------------\n\n");
+						system("pause");
+						break;
+					}
 					// Switch to Player One
 					turn = 0;
 				}
 			}
+			break;
 		
 		// Display the rules
 		case 2:
