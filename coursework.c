@@ -148,15 +148,23 @@ void place_token(Board board[][COL], Box player)
 		printf("Enter column number below:\n");
 		scanf("%d", &column);
 		
-		// Place the token at the given column in the lowest available row
-		for (int row = ROW; row >= 0; row--)
+		if(column < 0 || column > 6)
 		{
-			// Check if box is available
-			if (board[row][column].token == DASH)
+			printf("\nERROR - Invalid Number!\n");
+			printf("Please enter a number between 0 and 6.\n\n");
+		}
+		else
+		{
+			// Place the token at the given column in the lowest available row
+			for (int row = ROW; row >= 0; row--)
 			{
-				board[row][column].token = player.token;
-				quit = 1;
-				break;
+				// Check if box is available
+				if (board[row][column].token == DASH)
+				{
+					board[row][column].token = player.token;
+					quit = 1;
+					break;
+				}
 			}
 		}
 	}
