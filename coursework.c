@@ -1,5 +1,36 @@
 #include "header.h"
 
+// Method to place token in the board
+void place_token(Board board[][COL], Box player)
+{
+	int column = 0;
+	int quit = 0;
+	
+	// Show the board after token has been placed
+	printf("-------------------------------\n\n");
+	board_display(board);
+	printf("-------------------------------\n\n");
+
+	while (quit == 0)
+	{
+		// Read user input for column
+		printf("Enter column number below:\n");
+		scanf("%d", &column);
+		
+		// Place the token at the given column in the lowest available row
+		for (int row = ROW; row >= 0; row--)
+		{
+			// Check if box is available
+			if (board[row][column].token == DASH)
+			{
+				board[row][column].token = player.token;
+				quit = 1;
+				break;
+			}
+		}
+	}
+}
+
 // Method to initialize the empty board with dashes
 void board_create(Board board[][COL])
 {
@@ -77,8 +108,16 @@ int main(void)
 	// Variables
 	int quit = 0;
 	int choice = 0;
+	int game = 0;
+	int turn = 0;
 	
 	Board board[ROW][COL] = { '\0' };
+	Box player_one = { '/0' };
+	Box player_two = { '/0' };
+
+	// Initialize tokens
+	player_one.token = PLAYER1;
+	player_two.token = PLAYER2;
 	
 	// Fill the board with dashes (meaning the cells are empty)
 	board_create(board);
@@ -104,7 +143,41 @@ int main(void)
 			// Display board
 			board_display(board);
 			system("pause");
-			break;
+			system("cls");
+			// While playing switch turns between players until someone wins
+			while (game == 0)
+			{
+				if (turn == 0)
+				{
+					printf("\n-------------------------------\n");
+					printf("-------- PLAYER 1 TURN --------\n");
+					// Place the token
+					place_token(board, player_one);
+					system("cls");
+					printf("-------------------------------\n\n");
+					// Display the board
+					board_display(board);
+					printf("-------------------------------\n\n");
+					system("cls");
+					// Switch to Player Two
+					turn = 1;
+				}
+				else
+				{
+					printf("\n-------------------------------\n");
+					printf("-------- PLAYER 2 TURN --------\n");
+					// Place the token
+					place_token(board, player_two);
+					system("cls");
+					printf("-------------------------------\n\n");
+					// Display the board
+					board_display(board);
+					printf("-------------------------------\n\n");
+					system("cls");
+					// Switch to Player One
+					turn = 0;
+				}
+			}
 		
 		// Display the rules
 		case 2:
@@ -121,6 +194,5 @@ int main(void)
 		}
 			
 	}	
-	
 	return 0;
 }
