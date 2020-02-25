@@ -23,7 +23,6 @@ int diagonal_checker(Board board[][COL], Box player)
 				{
 					return 1;
 				}
-
 			}
 			// If less than 4 reset the occurances
 			if (occurances < 4)
@@ -253,6 +252,9 @@ int main(void)
 	int game = 0;
 	int turn = 0;
 	int answer = 0;
+	int win1 = 0;
+	int win2 = 0;
+	int restart = 0;
 	
 	int last_column = 0;
 	
@@ -282,6 +284,10 @@ int main(void)
 		{
 		// Start the game
 		case 1:
+			// Reset board on new game
+			board_create(board);
+			game = 0;
+			turn = 0;
 			printf("\n-------------------------------\n");
 			printf("--------- GAME STARTED --------\n");
 			printf("-------------------------------\n\n");
@@ -327,18 +333,46 @@ int main(void)
 					
 					
 					// Check if four connect somewhere
-					int win = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
-					if (win > 0)
+					win1 = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
+					if (win1 > 0)
 					{
 						// Print message to the winner
-						printf("-------------------------------\n");
+						printf("\n-------------------------------\n");
 						printf("--- PLAYER 1 IS THE WINNER! ---\n");
 						printf("-------------------------------\n\n");
 						// Display the board
 						board_display(board);
 						printf("-------------------------------\n\n");
 						system("pause");
-						break;
+						
+						// Ask the user if they want to restart
+						system("cls");
+						printf("---------------\n");
+						printf("Play again?\n");
+						printf("Type 1 for YES\n");
+						printf("Type 2 for NO\n");
+						printf("---------------\n\n");
+						scanf("%d", &restart);
+						system("cls");
+						if (restart == 2)
+						{
+							game = 1;
+						}
+						if (restart == 1)
+						{
+							// Reset the board and variables
+							win1 = 0;
+							turn = 0;
+							board_create(board);
+							// Display the board
+							printf("\n-------------------------------\n");
+							printf("------- RESTARTING GAME -------\n");
+							printf("-------------------------------\n\n");
+							board_display(board);
+							printf("-------------------------------\n\n");
+							system("pause");
+							system("cls");
+						}
 					}
 					// Switch to Player Two
 					turn = 1;
@@ -378,18 +412,46 @@ int main(void)
 					
 					system("cls");
 					// Check if four connect somewhere
-					int win = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
-					if (win > 0)
+					win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
+					if (win2 > 0)
 					{
 						// Print message to the winner
-						printf("-------------------------------\n");
+						printf("\n-------------------------------\n");
 						printf("--- PLAYER 2 IS THE WINNER! ---\n");
 						printf("-------------------------------\n\n");
 						// Display the board
 						board_display(board);
 						printf("-------------------------------\n\n");
 						system("pause");
-						break;
+						
+						// Ask the user if they want to restart
+						system("cls");
+						printf("---------------\n");
+						printf("Play again?\n");
+						printf("Type 1 for YES\n");
+						printf("Type 2 for NO\n");
+						printf("---------------\n\n");
+						scanf("%d", &restart);
+						system("cls");
+						if (restart == 2)
+						{
+							game = 1;
+						}
+						if (restart == 1)
+						{
+							// Reset the board and variables
+							win2 = 0;
+							turn = 0;
+							board_create(board);
+							// Display the board
+							printf("\n-------------------------------\n");
+							printf("------- RESTARTING GAME -------\n");
+							printf("-------------------------------\n\n");
+							board_display(board);
+							printf("-------------------------------\n\n");
+							system("pause");
+							system("cls");
+						}
 					}
 					// Switch to Player One
 					turn = 0;
