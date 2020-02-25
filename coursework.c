@@ -219,6 +219,8 @@ void rules()
 	printf("This is a two player game in a terminal.\n");
 	printf("You can play versus your friend.\n");
 	printf("Everyone takes turns to drop down tokens.\n");
+	printf("After you drop a piece you will be asked,\n");
+	printf("if you want to undo your move.\n");
 	printf("To win a game, you have to have 4 tokens connecting\n");
 	printf("in any direction without interruption.\n");
 	printf("Hope you have fun while playing!\n");
