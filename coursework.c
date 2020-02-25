@@ -1,3 +1,13 @@
+/*
+*
+*  @author: Valeri Vladimirov 40399682
+*  Last Modified: 25/02/2019
+*  Purpose: Connect Four game implementation in C.
+*  Functionality: Add piece, check for connection of four,
+*  undo move, play again.
+*
+*/
+
 #include "header.h"
 
 // Method to check diagonally for a winner
@@ -257,6 +267,8 @@ int main(void)
 	int win1 = 0;
 	int win2 = 0;
 	int restart = 0;
+	int player1_score = 0;
+	int player2_score = 0;
 	
 	int last_column = 0;
 	
@@ -286,10 +298,12 @@ int main(void)
 		{
 		// Start the game
 		case 1:
-			// Reset board on new game
+			// Reset board and variables on new game
 			board_create(board);
 			game = 0;
 			turn = 0;
+			player2_score = 0;
+			player1_score = 0;
 			printf("\n-------------------------------\n");
 			printf("--------- GAME STARTED --------\n");
 			printf("-------------------------------\n\n");
@@ -303,7 +317,11 @@ int main(void)
 				// PLAYER 1
 				if (turn == 0)
 				{
-					printf("\n-------------------------------\n");
+					// Display score
+					printf("---------- SCORE --------------\n");
+					printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+					printf("-------------------------------\n");
+					printf("-------------------------------\n");
 					printf("-------- PLAYER 1 TURN --------\n");
 					// Place the token and save the column for undo function
 					last_column = place_token(board, player_one);
@@ -338,8 +356,13 @@ int main(void)
 					win1 = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
 					if (win1 > 0)
 					{
+						// Increment  and display the score
+						player1_score++;
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
 						// Print message to the winner
-						printf("\n-------------------------------\n");
+						printf("-------------------------------\n");
 						printf("--- PLAYER 1 IS THE WINNER! ---\n");
 						printf("-------------------------------\n\n");
 						// Display the board
@@ -364,7 +387,6 @@ int main(void)
 						{
 							// Reset the board and variables
 							win1 = 0;
-							turn = 0;
 							board_create(board);
 							// Display the board
 							printf("\n-------------------------------\n");
@@ -383,7 +405,11 @@ int main(void)
 				// PLAYER 2
 				else
 				{
-					printf("\n-------------------------------\n");
+					// Display score
+					printf("---------- SCORE --------------\n");
+					printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+					printf("-------------------------------\n");
+					printf("-------------------------------\n");
 					printf("-------- PLAYER 2 TURN --------\n");
 					// Place the token and save the column for undo function
 					last_column = place_token(board, player_two);
@@ -417,8 +443,13 @@ int main(void)
 					win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
 					if (win2 > 0)
 					{
+						// Display and increment score
+						player2_score++;
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
 						// Print message to the winner
-						printf("\n-------------------------------\n");
+						printf("-------------------------------\n");
 						printf("--- PLAYER 2 IS THE WINNER! ---\n");
 						printf("-------------------------------\n\n");
 						// Display the board
@@ -443,7 +474,6 @@ int main(void)
 						{
 							// Reset the board and variables
 							win2 = 0;
-							turn = 0;
 							board_create(board);
 							// Display the board
 							printf("\n-------------------------------\n");
