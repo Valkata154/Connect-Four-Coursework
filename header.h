@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <limits.h> 
 
 #define ROW 6
 #define COL 7
@@ -9,6 +10,11 @@
 #define PLAYER1 'O'
 #define PLAYER2 'X'
 
+struct Stack { 
+    int top; 
+    unsigned capacity; 
+    int* array; 
+}; 
 
 typedef struct box
 {
@@ -33,4 +39,9 @@ void board_create(Board board[][COL]);
 int vertical_checker(Board board[][COL], Box player);
 int horizontal_checker(Board board[][COL], Box player);
 int diagonal_checker(Board board[][COL], Box player);
+struct Stack* createStack(unsigned capacity);
+int isEmpty(struct Stack* stack);
+void push(struct Stack* stack, int item);
+int pop(struct Stack* stack);
+int peek(struct Stack* stack);
 

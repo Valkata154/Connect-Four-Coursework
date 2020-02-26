@@ -10,6 +10,52 @@
 
 #include "header.h"
 
+//  Function to create a stack of given capacity.
+struct Stack* createStack(unsigned capacity) 
+{ 
+    struct Stack* stack = (struct Stack*)malloc(sizeof(struct Stack)); 
+    stack->capacity = capacity; 
+    stack->top = -1; 
+    stack->array = (int*)malloc(stack->capacity * sizeof(int)); 
+    return stack; 
+} 
+  
+// Function to find whether stack is full
+int isFull(struct Stack* stack) 
+{ 
+    return stack->top == stack->capacity - 1; 
+} 
+  
+// Function to find whether stack is empty
+int isEmpty(struct Stack* stack) 
+{ 
+    return stack->top == -1; 
+} 
+  
+// Function to add an item to stack.
+void push(struct Stack* stack, int item) 
+{ 
+    if (isFull(stack)) 
+        return; 
+    stack->array[++stack->top] = item; 
+} 
+  
+// Function to remove an item from stack.
+int pop(struct Stack* stack) 
+{ 
+    if (isEmpty(stack)) 
+        return INT_MIN; 
+    return stack->array[stack->top--]; 
+} 
+  
+// Function to return the top from stack without removing it 
+int peek(struct Stack* stack) 
+{ 
+    if (isEmpty(stack)) 
+        return INT_MIN; 
+    return stack->array[stack->top]; 
+} 
+
 // Method to check diagonally for a winner
 int diagonal_checker(Board board[][COL], Box player)
 {
@@ -269,8 +315,8 @@ int main(void)
 	int restart = 0;
 	int player1_score = 0;
 	int player2_score = 0;
-	
 	int last_column = 0;
+	struct Stack* stack = createStack(100);
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -287,7 +333,7 @@ int main(void)
 	{
 		// Display the menu
 		menu();
-		// Get user input
+		// Get user input 
 		printf("Enter selection: ");
 		scanf("%d", &choice);
 		// Clear the screen
@@ -317,14 +363,16 @@ int main(void)
 				// PLAYER 1
 				if (turn == 0)
 				{
+					// Switch to Player Two
+					turn = 1;
 					// Display score
 					printf("---------- SCORE --------------\n");
 					printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
 					printf("-------------------------------\n");
 					printf("-------------------------------\n");
 					printf("-------- PLAYER 1 TURN --------\n");
-					// Place the token and save the column for undo function
-					last_column = place_token(board, player_one);
+					// Place the token and save the column in the stack for undo function
+					push(stack, place_token(board, player_one)); 
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
@@ -338,14 +386,57 @@ int main(void)
 					// If yes find the box
 					if(answer == 1)
 					{
-						for (int row = 0; row <= 5; row++)
+						// Ask user if they want to undo
+						printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
+						scanf("%d", &answer);
+						if (answer == 1)
 						{
-							// Find the top-most token placed for the given column
-							if (board[row][last_column].token == player_one.token)
+							// Find the last put item in the given column and row
+							for (int row = 0; row <= 5; row++)
 							{
-								// Swap it with a dash
-								board[row][last_column].token = DASH;
-								break;
+								// Find the top-most token placed for the given column
+								if (board[row][peek(stack)].token == player_one.token)
+								{
+									// Swap it with a dash
+									board[row][peek(stack)].token = DASH;
+									pop(stack);
+									turn = 0;
+									break;
+								}
+							}
+						}
+						else
+						{
+							// Ask how many turns to go back and pop and change elements multiple times
+							int num;
+							printf("How many turns do you want to go back?\n");
+							scanf("%d", &num);
+							for(int i = 0; i < num; i++)
+							{
+								for (int row = 0; row <= 5; row++)
+								{
+									// Find the top-most token placed for the given column
+									if (board[row][peek(stack)].token == player_one.token || board[row][peek(stack)].token == player_two.token)
+									{
+										// Swap it with a dash
+										board[row][peek(stack)].token = DASH;
+										pop(stack);
+										break;
+									}
+								}
+							}
+							
+							// Check to which players belongs  the last element to figure out which turn to play
+							for (int row = 0; row <= 5; row++)
+							{
+								if (board[row][peek(stack)].token == player_one.token)
+								{
+									turn = 1;
+								}
+								else
+								{
+									turn = 0;
+								}
 							}
 						}
 					}
@@ -398,21 +489,21 @@ int main(void)
 							system("cls");
 						}
 					}
-					// Switch to Player Two
-					turn = 1;
 					answer = 0;
 				}
 				// PLAYER 2
 				else
 				{
+					// Switch to Player One
+					turn = 0;
 					// Display score
 					printf("---------- SCORE --------------\n");
 					printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
 					printf("-------------------------------\n");
 					printf("-------------------------------\n");
 					printf("-------- PLAYER 2 TURN --------\n");
-					// Place the token and save the column for undo function
-					last_column = place_token(board, player_two);
+					// Place the token and save the column in the stack for undo function
+					push(stack, place_token(board, player_two));
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
@@ -426,19 +517,62 @@ int main(void)
 					// If yes find the box
 					if(answer == 1)
 					{
-						for (int row = 0; row <= 5; row++)
+						// Ask user if they want to undo
+						printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
+						scanf("%d", &answer);
+						if (answer == 1)
 						{
-							// Find the top-most token placed for the given column
-							if (board[row][last_column].token == player_two.token)
+							// Find the last put item in the given column and row
+							for (int row = 0; row <= 5; row++)
 							{
-								// Swap it with a dash
-								board[row][last_column].token = DASH;
-								break;
+								// Find the top-most token placed for the given column
+								if (board[row][peek(stack)].token == player_two.token)
+								{
+									// Swap it with a dash
+									board[row][peek(stack)].token = DASH;
+									pop(stack);
+									turn = 1;
+									break;
+								}
+							}
+						}
+						else
+						{
+							// Ask how many turns to go back and pop and change elements multiple times
+							int num;
+							printf("How many turns do you want to go back?\n");
+							scanf("%d", &num);
+							for(int i = 0; i < num; i++)
+							{
+								for (int row = 0; row <= 5; row++)
+								{
+									// Find the top-most token placed for the given column
+									if (board[row][peek(stack)].token == player_one.token || board[row][peek(stack)].token == player_two.token)
+									{
+										// Swap it with a dash
+										board[row][peek(stack)].token = DASH;
+										pop(stack);
+										break;
+									}
+								}
+							}
+							
+							// Check to which players belongs  the last element to figure out which turn to play
+							for (int row = 0; row <= 5; row++)
+							{
+								if (board[row][peek(stack)].token == player_two.token)
+								{
+									turn = 0;
+								}
+								else
+								{
+									turn = 1;
+								}
 							}
 						}
 					}
-					
 					system("cls");
+					
 					// Check if four connect somewhere
 					win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
 					if (win2 > 0)
@@ -485,8 +619,6 @@ int main(void)
 							system("cls");
 						}
 					}
-					// Switch to Player One
-					turn = 0;
 					answer = 0;
 				}
 			}
