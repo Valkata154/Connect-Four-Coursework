@@ -26,6 +26,8 @@ int main(void)
 	int player2_score = 0;
 	int last_column = 0;
 	struct Stack* stack = createStack(100);
+	int stackItems = 0;
+	int arrayTemp[MAX];
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -42,6 +44,7 @@ int main(void)
 	{
 		// Display the menu
 		menu();
+
 		// Get user input 
 		printf("Enter selection: ");
 		scanf("%d", &choice);
@@ -57,8 +60,6 @@ int main(void)
 			board_create(board);
 			game = 0;
 			turn = 0;
-			player2_score = 0;
-			player1_score = 0;
 			printf("\n-------------------------------\n");
 			printf("--------- GAME STARTED --------\n");
 			printf("-------------------------------\n\n");
@@ -69,6 +70,8 @@ int main(void)
 			// While playing switch turns between players until someone wins
 			while (game == 0)
 			{
+				stackItems = 0;
+				arrayTemp[MAX];
 				// PLAYER 1
 				if (turn == 0)
 				{
@@ -170,33 +173,8 @@ int main(void)
 						printf("-------------------------------\n\n");
 						system("pause");
 						
-						// Ask the user if they want to restart
-						system("cls");
-						printf("---------------\n");
-						printf("Play again?\n");
-						printf("Type 1 for YES\n");
-						printf("Type 2 for NO\n");
-						printf("---------------\n\n");
-						scanf("%d", &restart);
-						system("cls");
-						if (restart == 2)
-						{
-							game = 1;
-						}
-						if (restart == 1)
-						{
-							// Reset the board and variables
-							win1 = 0;
-							board_create(board);
-							// Display the board
-							printf("\n-------------------------------\n");
-							printf("------- RESTARTING GAME -------\n");
-							printf("-------------------------------\n\n");
-							board_display(board);
-							printf("-------------------------------\n\n");
-							system("pause");
-							system("cls");
-						}
+						game = 1;
+						
 					}
 					answer = 0;
 				}
@@ -299,37 +277,17 @@ int main(void)
 						board_display(board);
 						printf("-------------------------------\n\n");
 						system("pause");
-						
-						// Ask the user if they want to restart
-						system("cls");
-						printf("---------------\n");
-						printf("Play again?\n");
-						printf("Type 1 for YES\n");
-						printf("Type 2 for NO\n");
-						printf("---------------\n\n");
-						scanf("%d", &restart);
-						system("cls");
-						if (restart == 2)
-						{
-							game = 1;
-						}
-						if (restart == 1)
-						{
-							// Reset the board and variables
-							win2 = 0;
-							board_create(board);
-							// Display the board
-							printf("\n-------------------------------\n");
-							printf("------- RESTARTING GAME -------\n");
-							printf("-------------------------------\n\n");
-							board_display(board);
-							printf("-------------------------------\n\n");
-							system("pause");
-							system("cls");
-						}
+						game = 1;
 					}
 					answer = 0;
 				}
+			}
+			// Pop all the elements from the stack and place them in a temp array in reversed order.
+			while(!isEmpty(stack))
+			{
+				stackItems++;
+				insert(arrayTemp, stackItems, peek(stack));
+				pop(stack);
 			}
 			break;
 		
@@ -339,14 +297,67 @@ int main(void)
 			break;
 		
 		// Exit the game
-		case 3:
+		case 4:
 			credits();
 			// Clear the screen
 			system("pause");
 			system("cls");
 			quit = 1;
 			break;
-		}
+		// Replay the previous game
+		case 3:
+			// Create new array
+			int n = 1;
+			int array[MAX];
+			
+			// Get the elements from the temp array in the correct order
+			for(int i = stackItems; i >= 0; i--)
+			{
+				insert(array, n, arrayTemp[i]);
+				n++;
+			}
+			
+			// Reset board
+			board_create(board);
+			int turnNum = 0;
+		
+			// Loop until all tokens are placed
+			for(int j = 1; j <= stackItems; j++)
+			{
+				// Player one turn
+				if(j % 2 != 0)
+				{
+					// Place token
+					place_token_2(board, player_one, array[j]);
+					printf("---------- Turn: %d -----------\n\n", turnNum);
+					printf("-------------------------------\n\n");
+				}
+				// Player two turn
+				else
+				{
+					// Place token 
+					place_token_2(board, player_two, array[j]);
+					printf("---------- Turn: %d -----------\n\n", turnNum);
+					printf("-------------------------------\n\n");
+				}
+				if(j == 1)
+				{
+					printf("Starting replay...\n");			
+				}
+				// Make the system sleep for 1.5s
+				Sleep(1500);
+				system("cls");
+				turnNum++;
+			}
+			// Finish the replay
+			printf("-------------------------------\n\n");
+			board_display(board);
+			printf("-------------------------------\n\n");
+			printf("----- Replay has finished -----\n\n");
+			printf("-------------------------------\n\n");
+			system("pause");
+			break;
+		}			
 	}	
 	return 0;
 }

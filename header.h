@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <limits.h> 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #define ROW 6
 #define COL 7
@@ -9,6 +15,8 @@
 
 #define PLAYER1 'O'
 #define PLAYER2 'X'
+
+# define MAX 42
 
 struct Stack { 
     int top; 
@@ -45,4 +53,10 @@ int isEmpty(struct Stack* stack);
 void push(struct Stack* stack, int item);
 int pop(struct Stack* stack);
 int peek(struct Stack* stack);
+
+void display (int *array);
+void init(int *array);
+void reverse (int *array);
+void insert(int *array , int pos , int num);
+void place_token_2(Board board[][COL], Box player, int column);
 

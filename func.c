@@ -1,6 +1,57 @@
 #include "header.h"
 
 /*
+* ARRAY FUNCTIONS
+*/
+
+// Reverse the array
+void reverse (int *array)
+{
+	int idx;
+	for ( idx =0; idx < MAX/2; idx++)
+	{
+		int temp = array [idx];
+		array[idx] = array [MAX -1 - idx];
+		array[MAX -1 - idx] = temp;
+	}
+}
+
+// Display the array elements
+void display (int *array)
+{
+	int idx;
+
+	for (idx =0; idx < MAX; idx++)
+	{
+		printf("%d\t", array[idx]);
+	}
+	printf("\n");
+}
+
+// Init the array
+void init(int *array)
+{
+	int idx;
+	for (idx =0; idx < MAX ; idx++)
+	{
+		array [idx] = 0;
+	}
+}
+
+// Insert into the array
+void insert ( int *array , int pos , int num)
+{
+	int idx;
+
+	for ( idx = MAX -1; idx >= pos ; idx --)
+	{
+		array [idx] = array [idx -1];
+	}
+	array [idx] = num;
+}
+
+
+/*
 *  STACK FUNCTIONS
 */
 
@@ -183,6 +234,34 @@ int vertical_checker(Board board[][COL], Box player)
 	return 0;
 }
 
+// Second method to place token in the board which is void and accepts column number
+void place_token_2(Board board[][COL], Box player, int column)
+{
+	int quit = 0;
+	
+	// Show the board after token has been placed
+	printf("-------------------------------\n\n");
+	board_display(board);
+	printf("-------------------------------\n\n");
+
+	while (quit == 0)
+	{
+		
+			// Place the token at the given column in the lowest available row
+			for (int row = ROW; row >= 0; row--)
+			{
+				// Check if box is available
+				if (board[row][column].token == DASH)
+				{
+					board[row][column].token = player.token;
+					quit = 1;
+					break;
+				}
+			}
+		
+	}
+}
+
 // Method to place token in the board
 int place_token(Board board[][COL], Box player)
 {
@@ -318,5 +397,6 @@ void menu()
 	printf("MENU:\n\n");
 	printf("[1] START GAME\n");
 	printf("[2] RULES\n");
-	printf("[3] QUIT\n");
+	printf("[3] SHOW REPLAY\n");
+	printf("[4] QUIT\n");
 }
