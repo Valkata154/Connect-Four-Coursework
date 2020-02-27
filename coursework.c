@@ -29,6 +29,9 @@ int main(void)
 	struct Stack* stack = createStack(100);
 	int stackItems = 0;
 	int arrayTemp[MAX];
+	int gamemode = 1;
+	int row = 5;
+	int counter = 0;
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -45,7 +48,6 @@ int main(void)
 	{
 		// Display the menu
 		menu();
-
 		// Get user input 
 		printf("Enter selection: ");
 		scanf("%d", &choice);
@@ -73,6 +75,9 @@ int main(void)
 			{
 				stackItems = 0;
 				arrayTemp[MAX];
+				counter = 0;
+				row = 5;
+				
 				// PLAYER 1
 				if (turn == 0)
 				{
@@ -84,8 +89,18 @@ int main(void)
 					printf("-------------------------------\n");
 					printf("-------------------------------\n");
 					printf("-------- PLAYER 1 TURN --------\n");
-					// Place the token and save the column in the stack for undo function
-					push(stack, place_token(board, player_one)); 
+					// Place the token and save the column in the stack for undo function DEFAULT
+					if(gamemode == 1)
+					{
+						push(stack, place_token(board, player_one)); 
+					}
+					// Place for POP 10
+					else if(gamemode == 3)
+					{
+						push(stack, place_token_pop_ten(board, player_one, row)); 
+						counter++; 
+					}
+						
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
@@ -115,6 +130,7 @@ int main(void)
 									board[row][peek(stack)].token = DASH;
 									push(tempStack, pop(stack));
 									turn = 0;
+									counter--;
 									break;
 								}
 							}
@@ -135,6 +151,7 @@ int main(void)
 								// Place the token
 								place_token_2(board, player_one, col);
 								turn = 1;
+								counter++;
 							}
 						}
 						else
@@ -160,6 +177,7 @@ int main(void)
 									}
 								}
 							}
+							counter = counter - num;
 							
 							// Show the board and ask if user is happy with changes
 							system("cls");
@@ -188,6 +206,7 @@ int main(void)
 							
 								}
 								turn = 1;
+								counter = counter + num;
 							}
 							
 							// Check to which players belongs  the last element to figure out which turn to play
@@ -229,8 +248,13 @@ int main(void)
 						
 					}
 					answer = 0;
+					if(counter == 7)
+					{
+						counter = 0;
+						row--;
+					}
 				}
-				// PLAYER 2
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// PLAYER 2
 				else
 				{
 					// Switch to Player One
@@ -241,8 +265,22 @@ int main(void)
 					printf("-------------------------------\n");
 					printf("-------------------------------\n");
 					printf("-------- PLAYER 2 TURN --------\n");
-					// Place the token and save the column in the stack for undo function
-					push(stack, place_token(board, player_two));
+					// Place the token and save the column in the stack for undo function DEFAULT
+					if(gamemode == 1)
+					{
+						push(stack, place_token(board, player_two)); 
+					}
+					// Place for POP 10
+					else if(gamemode == 3)
+					{
+						push(stack, place_token_pop_ten(board, player_two, row)); 
+						counter++; 
+						if(counter == 7)
+						{
+							counter = 0;
+							row--;
+						}
+					}
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
@@ -272,6 +310,7 @@ int main(void)
 									board[row][peek(stack)].token = DASH;
 									push(tempStack, pop(stack));
 									turn = 1;
+									counter--;
 									break;
 								}
 							}
@@ -292,6 +331,7 @@ int main(void)
 								// Place the token
 								place_token_2(board, player_two, col);
 								turn = 0;
+								counter++;
 							}
 						}
 						else
@@ -317,6 +357,7 @@ int main(void)
 									}
 								}
 							}
+							counter = counter - num;
 							
 							// Show the board and ask if user is happy with changes
 							system("cls");
@@ -345,6 +386,7 @@ int main(void)
 							
 								}
 								turn = 0;
+								counter = counter + num;
 							}
 							
 							// Check to which players belongs  the last element to figure out which turn to play
@@ -383,6 +425,11 @@ int main(void)
 						game = 1;
 					}
 					answer = 0;
+					if(counter == 7)
+					{
+						counter = 0;
+						row--;
+					}
 				}
 			}
 			// Pop all the elements from the stack and place them in a temp array in reversed order.
@@ -400,7 +447,7 @@ int main(void)
 			break;
 		
 		// Exit the game
-		case 4:
+		case 5:
 			credits();
 			// Clear the screen
 			system("pause");
@@ -408,7 +455,7 @@ int main(void)
 			quit = 1;
 			break;
 		// Replay the previous game
-		case 3:
+		case 4:
 			// Create new array
 			int n = 1;
 			int array[MAX];
@@ -460,6 +507,15 @@ int main(void)
 			printf("-------------------------------\n\n");
 			system("pause");
 			break;
+		
+		// Gamemode
+		case 3:
+			printf("Select Gamemode:\n\n");
+			printf("[1] CONNECT FOUR NORMAL (DEFAULT)\n");
+			printf("[2] POP OUT\n");
+			printf("[3] POP 10\n");
+			printf("\nEnter selection: ");
+			scanf("%d", &gamemode);
 		}			
 	}	
 	return 0;

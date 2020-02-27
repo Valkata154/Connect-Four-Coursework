@@ -262,6 +262,49 @@ void place_token_2(Board board[][COL], Box player, int column)
 	}
 }
 
+// Method to place token in the board for POP 10 
+int place_token_pop_ten(Board board[][COL], Box player, int r)
+{
+	int column = 0;
+	int quit = 0;
+	
+	// Show the board after token has been placed
+	printf("-------------------------------\n\n");
+	board_display(board);
+	printf("-------------------------------\n\n");
+
+	while (quit == 0)
+	{
+		// Read user input for column
+		printf("Enter column number below:\n");
+		scanf("%d", &column);
+		
+		if(column < 0 || column > 6)
+		{
+			printf("\nERROR - Invalid Number!\n");
+			printf("Please enter a number between 0 and 6.\n\n");
+		}
+		else
+		{
+			// Check if box is available
+			if (board[r][column].token == DASH)
+			{
+				board[r][column].token = player.token;
+				quit = 1;
+				break;
+			}
+			// If trying to place on the upper row give error and prompt again
+			else
+			{
+				printf("You need to fill the lower row and then place on the upper one!\n");
+			}
+		}
+	}
+	
+	// Return the column for undo function
+	return column;
+}
+
 // Method to place token in the board
 int place_token(Board board[][COL], Box player)
 {
@@ -400,6 +443,7 @@ void menu()
 	printf("MENU:\n\n");
 	printf("[1] START GAME\n");
 	printf("[2] RULES\n");
-	printf("[3] SHOW REPLAY\n");
-	printf("[4] QUIT\n");
+	printf("[3] GAMEMODE\n");
+	printf("[4] SHOW REPLAY\n");
+	printf("[5] QUIT\n");
 }
