@@ -32,6 +32,7 @@ int main(void)
 	int gamemode = 1;
 	int row = 5;
 	int counter = 0;
+	int poping = 0;
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -63,6 +64,8 @@ int main(void)
 			board_create(board);
 			game = 0;
 			turn = 0;
+			counter = 0;
+			row = 5;
 			printf("\n-------------------------------\n");
 			printf("--------- GAME STARTED --------\n");
 			printf("-------------------------------\n\n");
@@ -75,8 +78,6 @@ int main(void)
 			{
 				stackItems = 0;
 				arrayTemp[MAX];
-				counter = 0;
-				row = 5;
 				
 				// PLAYER 1
 				if (turn == 0)
@@ -99,6 +100,51 @@ int main(void)
 					{
 						push(stack, place_token_pop_ten(board, player_one, row)); 
 						counter++; 
+						if(counter == 7)
+						{
+							counter = 0;
+							row--;
+						}
+					}
+					// POP OUT
+					else if (gamemode == 2)
+					{
+						system("cls");
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
+						printf("-------------------------------\n");
+						printf("-------- PLAYER 1 TURN --------\n");
+						printf("-------------------------------\n\n");
+						// Display the board
+						board_display(board);
+						printf("-------------------------------\n\n");
+						// Ask the user if they want to pop or place
+						printf("Would you like to place or pop?\nType 1 to place or 2 to pop\n");
+						printf("Enter selection: ");
+						scanf("%d", &poping);
+						system("cls");
+						if(poping == 1)
+						{
+							push(stack, place_token(board, player_one)); 
+						}
+						else
+						{
+							printf("---------- SCORE --------------\n");
+							printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+							printf("-------------------------------\n");
+							printf("-------------------------------\n");
+							printf("-------- PLAYER 1 TURN --------\n");
+							printf("-------------------------------\n\n");
+							// Display the board
+							board_display(board);
+							printf("-------------------------------\n\n");
+							int col = 0;
+							// Ask which column to pop and remove the first token
+							printf("Enter on which column: ");
+							scanf("%d", &col);
+							remove_token(board, player_one, col);
+						}
 					}
 						
 					system("cls");
@@ -107,129 +153,133 @@ int main(void)
 					board_display(board);
 					printf("-------------------------------\n\n");
 					
-					
-					// Ask the user if they want to undo their move
-					printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
-					scanf("%d", &answer);
-					// If yes find the box
-					if(answer == 1)
+					// UNDO not allowed for Pop Out
+					if(gamemode == 1 || gamemode == 3)
 					{
-						// Ask user if they want to undo
-						printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
+						// Ask the user if they want to undo their move
+						printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
 						scanf("%d", &answer);
-						if (answer == 1)
+						// If yes find the box
+						if(answer == 1)
 						{
-							struct Stack* tempStack = createStack(100);
-							// Find the last put item in the given column and row
-							for (int row = 0; row <= 5; row++)
+							// Ask user if they want to undo
+							printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
+							scanf("%d", &answer);
+							if (answer == 1)
 							{
-								// Find the top-most token placed for the given column
-								if (board[row][peek(stack)].token == player_one.token)
-								{
-									// Swap it with a dash
-									board[row][peek(stack)].token = DASH;
-									push(tempStack, pop(stack));
-									turn = 0;
-									counter--;
-									break;
-								}
-							}
-							// Show the board and ask if user is happy with changes
-							system("cls");
-							printf("-------------------------------\n\n");
-							board_display(board);
-							printf("-------------------------------\n");
-							printf("Are you happy with the change?\nType: 1 if yes\nType: 2 to redo\n");
-							scanf("%d", &answer_other);
-							// If not redo the changes
-							if(answer_other == 2)
-							{
-								// Pop from temp stack to save last value
-								int col = pop(tempStack);
-								// Push the value to the actual stack
-								push(stack, col);
-								// Place the token
-								place_token_2(board, player_one, col);
-								turn = 1;
-								counter++;
-							}
-						}
-						else
-						{
-							// Create temp stack to store popped values
-							struct Stack* tempStack = createStack(100);
-							// Ask how many turns to go back and pop and change elements multiple times
-							int num;
-							printf("How many turns do you want to go back?\n");
-							scanf("%d", &num);
-							for(int i = 0; i < num; i++)
-							{
+								struct Stack* tempStack = createStack(100);
+								// Find the last put item in the given column and row
 								for (int row = 0; row <= 5; row++)
 								{
 									// Find the top-most token placed for the given column
-									if (board[row][peek(stack)].token == player_one.token || board[row][peek(stack)].token == player_two.token)
+									if (board[row][peek(stack)].token == player_one.token)
 									{
 										// Swap it with a dash
 										board[row][peek(stack)].token = DASH;
-										// When popping add to temp stack
 										push(tempStack, pop(stack));
+										turn = 0;
+										counter--;
 										break;
 									}
 								}
-							}
-							counter = counter - num;
-							
-							// Show the board and ask if user is happy with changes
-							system("cls");
-							printf("-------------------------------\n\n");
-							board_display(board);
-							printf("-------------------------------\n");
-							printf("Are you happy with the changes?\nType: 1 if yes\nType: 2 to redo\n");
-							scanf("%d", &answer_other);
-							// If not redo all the changes
-							if(answer_other == 2)
-							{
-								for(int i = 0; i < num; i++)
+								// Show the board and ask if user is happy with changes
+								system("cls");
+								printf("-------------------------------\n\n");
+								board_display(board);
+								printf("-------------------------------\n");
+								printf("Are you happy with the change?\nType: 1 if yes\nType: 2 to redo\n");
+								scanf("%d", &answer_other);
+								// If not redo the changes
+								if(answer_other == 2)
 								{
 									// Pop from temp stack to save last value
 									int col = pop(tempStack);
-									// Push to the actual stack
+									// Push the value to the actual stack
 									push(stack, col);
-									// Decide which player token to place and place it 
-									if(i % 2 == 0){
-										place_token_2(board, player_one, col);
+									// Place the token
+									place_token_2(board, player_one, col);
+									turn = 1;
+									counter++;
+								}
+							}
+							else
+							{
+								// Create temp stack to store popped values
+								struct Stack* tempStack = createStack(100);
+								// Ask how many turns to go back and pop and change elements multiple times
+								int num;
+								printf("How many turns do you want to go back?\n");
+								scanf("%d", &num);
+								for(int i = 0; i < num; i++)
+								{
+									for (int row = 0; row <= 5; row++)
+									{
+										// Find the top-most token placed for the given column
+										if (board[row][peek(stack)].token == player_one.token || board[row][peek(stack)].token == player_two.token)
+										{
+											// Swap it with a dash
+											board[row][peek(stack)].token = DASH;
+											// When popping add to temp stack
+											push(tempStack, pop(stack));
+											break;
+										}
+									}
+								}
+								counter = counter - num;
+								
+								// Show the board and ask if user is happy with changes
+								system("cls");
+								printf("-------------------------------\n\n");
+								board_display(board);
+								printf("-------------------------------\n");
+								printf("Are you happy with the changes?\nType: 1 if yes\nType: 2 to redo\n");
+								scanf("%d", &answer_other);
+								// If not redo all the changes
+								if(answer_other == 2)
+								{
+									for(int i = 0; i < num; i++)
+									{
+										// Pop from temp stack to save last value
+										int col = pop(tempStack);
+										// Push to the actual stack
+										push(stack, col);
+										// Decide which player token to place and place it 
+										if(i % 2 == 0){
+											place_token_2(board, player_one, col);
+										}
+										else
+										{
+											place_token_2(board, player_two, col);
+										}
+								
+									}
+									turn = 1;
+									counter = counter + num;
+								}
+								
+								// Check to which players belongs  the last element to figure out which turn to play
+								for (int row = 0; row <= 5; row++)
+								{
+									if (board[row][peek(stack)].token == player_one.token)
+									{
+										turn = 1;
 									}
 									else
 									{
-										place_token_2(board, player_two, col);
+										turn = 0;
 									}
-							
-								}
-								turn = 1;
-								counter = counter + num;
-							}
-							
-							// Check to which players belongs  the last element to figure out which turn to play
-							for (int row = 0; row <= 5; row++)
-							{
-								if (board[row][peek(stack)].token == player_one.token)
-								{
-									turn = 1;
-								}
-								else
-								{
-									turn = 0;
 								}
 							}
 						}
+						system("cls");
 					}
-					system("cls");
 					
 					
 					// Check if four connect somewhere
 					win1 = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
 					if (win1 > 0)
 					{
+						system("cls");
 						// Increment  and display the score
 						player1_score++;
 						printf("---------- SCORE --------------\n");
@@ -281,134 +331,178 @@ int main(void)
 							row--;
 						}
 					}
+					// POP OUT
+					else if (gamemode == 2)
+					{
+						system("cls");
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
+						printf("-------------------------------\n");
+						printf("-------- PLAYER 2 TURN --------\n");
+						printf("-------------------------------\n\n");
+						// Display the board
+						board_display(board);
+						printf("-------------------------------\n\n");
+						// Ask the user if they want to pop or place
+						printf("Would you like to place or pop?\nType 1 to place or 2 to pop\n");
+						printf("Enter selection: ");
+						scanf("%d", &poping);
+						system("cls");
+						if(poping == 1)
+						{
+							push(stack, place_token(board, player_two)); 
+						}
+						else
+						{
+							printf("---------- SCORE --------------\n");
+							printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+							printf("-------------------------------\n");
+							printf("-------------------------------\n");
+							printf("-------- PLAYER 2 TURN --------\n");
+							printf("-------------------------------\n\n");
+							// Display the board
+							board_display(board);
+							printf("-------------------------------\n\n");
+							int col = 0;
+							// Ask for which column to remove the first token and remove it
+							printf("Enter on which column: ");
+							scanf("%d", &col);
+							remove_token(board, player_one, col);
+						}
+					}
 					system("cls");
 					printf("-------------------------------\n\n");
 					// Display the board
 					board_display(board);
 					printf("-------------------------------\n\n");
 					
-					
-					// Ask the user if they want to undo their move
-					printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
-					scanf("%d", &answer);
-					// If yes find the box
-					if(answer == 1)
+					// Undo not allowed for Pop Out
+					if(gamemode == 1 || gamemode == 3)
 					{
-						// Ask user if they want to undo
-						printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
+						// Ask the user if they want to undo their move
+						printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
 						scanf("%d", &answer);
-						if (answer == 1)
+						// If yes find the box
+						if(answer == 1)
 						{
-							struct Stack* tempStack = createStack(100);
-							// Find the last put item in the given column and row
-							for (int row = 0; row <= 5; row++)
+							// Ask user if they want to undo
+							printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
+							scanf("%d", &answer);
+							if (answer == 1)
 							{
-								// Find the top-most token placed for the given column
-								if (board[row][peek(stack)].token == player_two.token)
-								{
-									// Swap it with a dash
-									board[row][peek(stack)].token = DASH;
-									push(tempStack, pop(stack));
-									turn = 1;
-									counter--;
-									break;
-								}
-							}
-							// Show the board and ask if user is happy with changes
-							system("cls");
-							printf("-------------------------------\n\n");
-							board_display(board);
-							printf("-------------------------------\n");
-							printf("Are you happy with the change?\nType: 1 if yes\nType: 2 to redo\n");
-							scanf("%d", &answer_other);
-							// If not redo the changes
-							if(answer_other == 2)
-							{
-								// Pop from temp stack to save last value
-								int col = pop(tempStack);
-								// Push the value to the actual stack
-								push(stack, col);
-								// Place the token
-								place_token_2(board, player_two, col);
-								turn = 0;
-								counter++;
-							}
-						}
-						else
-						{
-							// Create temp stack to store popped values
-							struct Stack* tempStack = createStack(100);
-							// Ask how many turns to go back and pop and change elements multiple times
-							int num;
-							printf("How many turns do you want to go back?\n");
-							scanf("%d", &num);
-							for(int i = 0; i < num; i++)
-							{
+								struct Stack* tempStack = createStack(100);
+								// Find the last put item in the given column and row
 								for (int row = 0; row <= 5; row++)
 								{
 									// Find the top-most token placed for the given column
-									if (board[row][peek(stack)].token == player_one.token || board[row][peek(stack)].token == player_two.token)
+									if (board[row][peek(stack)].token == player_two.token)
 									{
 										// Swap it with a dash
 										board[row][peek(stack)].token = DASH;
-										// When popping add to temp stack
 										push(tempStack, pop(stack));
+										turn = 1;
+										counter--;
 										break;
 									}
 								}
-							}
-							counter = counter - num;
-							
-							// Show the board and ask if user is happy with changes
-							system("cls");
-							printf("-------------------------------\n\n");
-							board_display(board);
-							printf("-------------------------------\n");
-							printf("Are you happy with the changes?\nType: 1 if yes\nType: 2 to redo\n");
-							scanf("%d", &answer_other);
-							// If not redo all the changes
-							if(answer_other == 2)
-							{
-								for(int i = 0; i < num; i++)
+								// Show the board and ask if user is happy with changes
+								system("cls");
+								printf("-------------------------------\n\n");
+								board_display(board);
+								printf("-------------------------------\n");
+								printf("Are you happy with the change?\nType: 1 if yes\nType: 2 to redo\n");
+								scanf("%d", &answer_other);
+								// If not redo the changes
+								if(answer_other == 2)
 								{
 									// Pop from temp stack to save last value
 									int col = pop(tempStack);
-									// Push to the actual stack
+									// Push the value to the actual stack
 									push(stack, col);
-									// Decide which player token to place and place it 
-									if(i % 2 != 0){
-										place_token_2(board, player_one, col);
+									// Place the token
+									place_token_2(board, player_two, col);
+									turn = 0;
+									counter++;
+								}
+							}
+							else
+							{
+								// Create temp stack to store popped values
+								struct Stack* tempStack = createStack(100);
+								// Ask how many turns to go back and pop and change elements multiple times
+								int num;
+								printf("How many turns do you want to go back?\n");
+								scanf("%d", &num);
+								for(int i = 0; i < num; i++)
+								{
+									for (int row = 0; row <= 5; row++)
+									{
+										// Find the top-most token placed for the given column
+										if (board[row][peek(stack)].token == player_one.token || board[row][peek(stack)].token == player_two.token)
+										{
+											// Swap it with a dash
+											board[row][peek(stack)].token = DASH;
+											// When popping add to temp stack
+											push(tempStack, pop(stack));
+											break;
+										}
+									}
+								}
+								counter = counter - num;
+								
+								// Show the board and ask if user is happy with changes
+								system("cls");
+								printf("-------------------------------\n\n");
+								board_display(board);
+								printf("-------------------------------\n");
+								printf("Are you happy with the changes?\nType: 1 if yes\nType: 2 to redo\n");
+								scanf("%d", &answer_other);
+								// If not redo all the changes
+								if(answer_other == 2)
+								{
+									for(int i = 0; i < num; i++)
+									{
+										// Pop from temp stack to save last value
+										int col = pop(tempStack);
+										// Push to the actual stack
+										push(stack, col);
+										// Decide which player token to place and place it 
+										if(i % 2 != 0){
+											place_token_2(board, player_one, col);
+										}
+										else
+										{
+											place_token_2(board, player_two, col);
+										}
+								
+									}
+									turn = 0;
+									counter = counter + num;
+								}
+								
+								// Check to which players belongs  the last element to figure out which turn to play
+								for (int row = 0; row <= 5; row++)
+								{
+									if (board[row][peek(stack)].token == player_two.token)
+									{
+										turn = 0;
 									}
 									else
 									{
-										place_token_2(board, player_two, col);
+										turn = 1;
 									}
-							
-								}
-								turn = 0;
-								counter = counter + num;
-							}
-							
-							// Check to which players belongs  the last element to figure out which turn to play
-							for (int row = 0; row <= 5; row++)
-							{
-								if (board[row][peek(stack)].token == player_two.token)
-								{
-									turn = 0;
-								}
-								else
-								{
-									turn = 1;
 								}
 							}
 						}
+						system("cls");
 					}
-					system("cls");
 					
 					// Check if four connect somewhere
 					win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
 					if (win2 > 0)
 					{
+						system("cls");
 						// Display and increment score
 						player2_score++;
 						printf("---------- SCORE --------------\n");
@@ -456,63 +550,73 @@ int main(void)
 			break;
 		// Replay the previous game
 		case 4:
-			// Create new array
-			int n = 1;
-			int array[MAX];
-			
-			// Get the elements from the temp array in the correct order
-			for(int i = stackItems; i >= 0; i--)
+			// Replay not allowed for Pop Out
+			if(gamemode == 1 || gamemode == 3)
 			{
-				insert(array, n, arrayTemp[i]);
-				n++;
+				// Create new array
+				int n = 1;
+				int array[MAX];
+				
+				// Get the elements from the temp array in the correct order
+				for(int i = stackItems; i >= 0; i--)
+				{
+					insert(array, n, arrayTemp[i]);
+					n++;
+				}
+				
+				// Reset board
+				board_create(board);
+				int turnNum = 0;
+			
+				// Loop until all tokens are placed
+				for(int j = 1; j <= stackItems; j++)
+				{
+					// Player one turn
+					if(j % 2 != 0)
+					{
+						// Place token
+						place_token_2(board, player_one, array[j]);
+						printf("---------- Turn: %d -----------\n\n", turnNum);
+						printf("-------------------------------\n\n");
+					}
+					// Player two turn
+					else
+					{
+						// Place token 
+						place_token_2(board, player_two, array[j]);
+						printf("---------- Turn: %d -----------\n\n", turnNum);
+						printf("-------------------------------\n\n");
+					}
+					if(j == 1)
+					{
+						printf("Starting replay...\n");			
+					}
+					// Make the system sleep for 1.5s
+					Sleep(1500);
+					system("cls");
+					turnNum++;
+				}
+				// Finish the replay
+				printf("-------------------------------\n\n");
+				board_display(board);
+				printf("-------------------------------\n\n");
+				printf("----- Replay has finished -----\n\n");
+				printf("-------------------------------\n\n");
+				system("pause");
 			}
-			
-			// Reset board
-			board_create(board);
-			int turnNum = 0;
-		
-			// Loop until all tokens are placed
-			for(int j = 1; j <= stackItems; j++)
+			else
 			{
-				// Player one turn
-				if(j % 2 != 0)
-				{
-					// Place token
-					place_token_2(board, player_one, array[j]);
-					printf("---------- Turn: %d -----------\n\n", turnNum);
-					printf("-------------------------------\n\n");
-				}
-				// Player two turn
-				else
-				{
-					// Place token 
-					place_token_2(board, player_two, array[j]);
-					printf("---------- Turn: %d -----------\n\n", turnNum);
-					printf("-------------------------------\n\n");
-				}
-				if(j == 1)
-				{
-					printf("Starting replay...\n");			
-				}
-				// Make the system sleep for 1.5s
-				Sleep(1500);
+				printf("Undo and replay are not supported on POP OUT Gamemode!");
+				system("pause");
 				system("cls");
-				turnNum++;
 			}
-			// Finish the replay
-			printf("-------------------------------\n\n");
-			board_display(board);
-			printf("-------------------------------\n\n");
-			printf("----- Replay has finished -----\n\n");
-			printf("-------------------------------\n\n");
-			system("pause");
 			break;
 		
 		// Gamemode
 		case 3:
 			printf("Select Gamemode:\n\n");
 			printf("[1] CONNECT FOUR NORMAL (DEFAULT)\n");
-			printf("[2] POP OUT\n");
+			printf("[2] POP OUT (UNDO AND REPLAY NOT SUPPORTED)\n");
 			printf("[3] POP 10\n");
 			printf("\nEnter selection: ");
 			scanf("%d", &gamemode);

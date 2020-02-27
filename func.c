@@ -235,6 +235,33 @@ int vertical_checker(Board board[][COL], Box player)
 }
 
 // Second method to place token in the board which is void and accepts column number
+void remove_token(Board board[][COL], Box player, int column)
+{
+	int quit = 0;
+	
+	// Show the board after token has been placed
+	printf("-------------------------------\n\n");
+	board_display(board);
+	printf("-------------------------------\n\n");
+	
+		// Then change all the others
+		for(int i = 5; i >= 0; i--)
+		{
+			// Change the top-most to DASH
+			if(i == 0)
+			{
+				board[i][column].token = DASH;
+			}
+			// Change the others to the upper one
+			else
+			{
+				board[i][column].token = board[i-1][column].token;
+			}
+		}
+	
+}
+
+// Second method to place token in the board which is void and accepts column number
 void place_token_2(Board board[][COL], Box player, int column)
 {
 	int quit = 0;
