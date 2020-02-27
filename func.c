@@ -362,6 +362,9 @@ void rules()
 	printf("After you drop a piece you will be asked,\n");
 	printf("if you want to undo your move.\n");
 	printf("You can make one or multiple redo's.\n");
+	printf("You can undo a redo after making it.\n");
+	printf("You can view your last played game.\n");
+	printf("When viewing a game you wont see the redo's and undo's.\n");	
 	printf("To win a game, you have to have 4 tokens connecting\n");
 	printf("in any direction without interruption.\n");
 	printf("Hope you have fun while playing!\n");
