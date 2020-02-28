@@ -28,13 +28,15 @@ void display (int *array)
 	printf("\n");
 }
 
-// Init the array
-void init(int *array)
+// Init the array with -1 for 15 replays and 42 moves each
+void init(int array[][MAX])
 {
-	int idx;
-	for (idx =0; idx < MAX ; idx++)
+	for (int row = 0; row < 15; row++)
 	{
-		array [idx] = 0;
+		for (int column = 0; column < MAX; column++)
+		{
+			array[row][column] = -1;
+		}
 	}
 }
 

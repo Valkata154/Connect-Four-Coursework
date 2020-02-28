@@ -33,6 +33,7 @@ int main(void)
 	int row = 5;
 	int counter = 0;
 	int poping = 0;
+	int gameNum = 1;
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -44,6 +45,10 @@ int main(void)
 	
 	// Fill the board with dashes (meaning the cells are empty)
 	board_create(board);
+	
+	// Create array for 15 replays and 42moves and init it with -1's
+	int array[15][MAX];				
+	init(array);
 	
 	while(quit==0)
 	{
@@ -526,12 +531,25 @@ int main(void)
 					}
 				}
 			}
-			// Pop all the elements from the stack and place them in a temp array in reversed order.
-			while(!isEmpty(stack))
+			if(gamemode != 2)
 			{
-				stackItems++;
-				insert(arrayTemp, stackItems, peek(stack));
-				pop(stack);
+				// Pop all the elements from the stack and place them in a temp array in reversed order.
+				while(!isEmpty(stack))
+				{
+					stackItems++;
+					insert(arrayTemp, stackItems, peek(stack));
+					pop(stack);
+				}
+				int n = 0;
+				
+				// Get the elements from the temp array in the correct order
+				for(int i = stackItems; i >= 0; i--)
+				{
+					array[gameNum][n] = arrayTemp[i];
+					n++;
+				}
+				// Increment to the next game
+				gameNum++;
 			}
 			break;
 		
@@ -553,29 +571,23 @@ int main(void)
 			// Replay not allowed for Pop Out
 			if(gamemode == 1 || gamemode == 3)
 			{
-				// Create new array
-				int n = 1;
-				int array[MAX];
-				
-				// Get the elements from the temp array in the correct order
-				for(int i = stackItems; i >= 0; i--)
-				{
-					insert(array, n, arrayTemp[i]);
-					n++;
-				}
-				
+				// Prompt the user to pick a replay
+				int number = 0;
+				printf("Enter the number of the game you want to see.\nFor the first game type: [1], for the second game: [2] and so on...\n");
+				scanf("%d", &number);
 				// Reset board
 				board_create(board);
 				int turnNum = 0;
 			
+				int j = 1;
 				// Loop until all tokens are placed
-				for(int j = 1; j <= stackItems; j++)
+				while(array[number][j] != -1)
 				{
 					// Player one turn
 					if(j % 2 != 0)
 					{
 						// Place token
-						place_token_2(board, player_one, array[j]);
+						place_token_2(board, player_one, array[number][j]);
 						printf("---------- Turn: %d -----------\n\n", turnNum);
 						printf("-------------------------------\n\n");
 					}
@@ -583,7 +595,7 @@ int main(void)
 					else
 					{
 						// Place token 
-						place_token_2(board, player_two, array[j]);
+						place_token_2(board, player_two, array[number][j]);
 						printf("---------- Turn: %d -----------\n\n", turnNum);
 						printf("-------------------------------\n\n");
 					}
@@ -595,18 +607,30 @@ int main(void)
 					Sleep(1500);
 					system("cls");
 					turnNum++;
+					j++;
 				}
-				// Finish the replay
-				printf("-------------------------------\n\n");
-				board_display(board);
-				printf("-------------------------------\n\n");
-				printf("----- Replay has finished -----\n\n");
-				printf("-------------------------------\n\n");
+				// If there are no more replays
+				if(array[number][j] == -1)
+				{
+					system("cls");
+					printf("-------------------------------------\n\n");
+					printf("----- There are no more replays -----\n\n");
+					printf("-------------------------------------\n\n");
+				}
+				else
+				{	
+					// Finish the replay
+					printf("-------------------------------\n\n");
+					board_display(board);
+					printf("-------------------------------\n\n");
+					printf("----- Replay has finished -----\n\n");
+					printf("-------------------------------\n\n");
+				}
 				system("pause");
 			}
 			else
 			{
-				printf("Undo and replay are not supported on POP OUT Gamemode!");
+				printf("Undo and replay are not supported on POP OUT Gamemode!\n");
 				system("pause");
 				system("cls");
 			}

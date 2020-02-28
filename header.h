@@ -55,7 +55,7 @@ int pop(struct Stack* stack);
 int peek(struct Stack* stack);
 
 void display (int *array);
-void init(int *array);
+void init(int array[][MAX]);
 void reverse (int *array);
 void insert(int *array , int pos , int num);
 void place_token_2(Board board[][COL], Box player, int column);
