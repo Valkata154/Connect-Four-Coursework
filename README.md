@@ -1,5 +1,6 @@
 # Connect Four
----
+
+
 ### Introduction
 
 Edinburgh Napier University Algorithms and Data Structures [SET08122] coursework assignment. Objective of this coursework was to demonstrate my understanding of both theory and practise of the module. My specific task was to implement a simple, command-line only (no GUI or graphics) version of the “Connect Four” game using the C programming language.
