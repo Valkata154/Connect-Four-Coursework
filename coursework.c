@@ -1,7 +1,7 @@
 /*
 *
 *  @author: Valeri Vladimirov 40399682
-*  Last Modified: 25/02/2019
+*  Last Modified: 29/02/2019
 *  Purpose: Connect Four game implementation in C.
 *  Functionality: Add piece, check for connection of four,
 *  undo move, play again.
@@ -12,7 +12,6 @@
 
 int main(void)
 {
-   
 	// Variables
 	int quit = 0;
 	int choice = 0;
@@ -25,8 +24,8 @@ int main(void)
 	int restart = 0;
 	int player1_score = 0;
 	int player2_score = 0;
+	int bot_score = 0;
 	int last_column = 0;
-	struct Stack* stack = createStack(100);
 	int stackItems = 0;
 	int arrayTemp[MAX];
 	int gamemode = 1;
@@ -34,6 +33,10 @@ int main(void)
 	int counter = 0;
 	int poping = 0;
 	int gameNum = 1;
+	int difficulty = 1;
+	int exit = 0;
+	
+	struct Stack* stack = createStack(100);
 	
 	Board board[ROW][COL] = { '\0' };
 	Box player_one = { '/0' };
@@ -54,10 +57,25 @@ int main(void)
 	{
 		// Display the menu
 		menu();
-		// Get user input 
-		printf("Enter selection: ");
-		scanf("%d", &choice);
-		// Clear the screen
+		while(exit == 0)
+		{
+			// Get user input 
+			printf("Enter selection: ");
+			scanf("%d", &choice);
+			system("cls");
+			// Wrong input checking
+			if(choice < 1 || choice > 5)
+			{
+				system("cls");
+				menu();
+				printf("\n[ERROR] Please enter a number that is in the given range!\n\n");
+			}
+			else
+			{
+				exit = 1;
+			}
+		}
+		exit = 0;
 		system("cls");
 		
 		// Switch statement for the menu
@@ -89,19 +107,32 @@ int main(void)
 				{
 					// Switch to Player Two
 					turn = 1;
-					// Display score
-					printf("---------- SCORE --------------\n");
-					printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
-					printf("-------------------------------\n");
-					printf("-------------------------------\n");
-					printf("-------- PLAYER 1 TURN --------\n");
-					// Place the token and save the column in the stack for undo function DEFAULT
-					if(gamemode == 1)
+					// Display score when not playing vs BOT
+					if(gamemode != 5)
+					{
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
+						printf("-------------------------------\n");
+						printf("-------- PLAYER 1 TURN --------\n");
+					}
+					// When playing vs BOT
+					else
+					{
+						system("cls");
+						printf("---------- SCORE --------------\n");
+						printf("------ Player: %d - Bot: %d -----\n", player1_score, bot_score);
+						printf("-------------------------------\n");
+						printf("-------------------------------\n");
+						printf("--------- PLAYER TURN ---------\n");
+					}
+					// Place the token and save the column in the stack for undo function
+					if(gamemode == 1 || gamemode == 5 || gamemode == 2)
 					{
 						push(stack, place_token(board, player_one)); 
 					}
-					// Place for POP 10
-					else if(gamemode == 3)
+					// Placing for POP 10
+					else if(gamemode == 4)
 					{
 						push(stack, place_token_pop_ten(board, player_one, row)); 
 						counter++; 
@@ -112,7 +143,7 @@ int main(void)
 						}
 					}
 					// POP OUT
-					else if (gamemode == 2)
+					else if (gamemode == 3)
 					{
 						system("cls");
 						printf("---------- SCORE --------------\n");
@@ -121,18 +152,34 @@ int main(void)
 						printf("-------------------------------\n");
 						printf("-------- PLAYER 1 TURN --------\n");
 						printf("-------------------------------\n\n");
-						// Display the board
 						board_display(board);
 						printf("-------------------------------\n\n");
 						// Ask the user if they want to pop or place
-						printf("Would you like to place or pop?\nType 1 to place or 2 to pop\n");
-						printf("Enter selection: ");
-						scanf("%d", &poping);
-						system("cls");
+						while(exit == 0)
+						{
+							printf("Would you like to place or pop?\nType [1] to place or [2] to pop\n");
+							printf("Enter selection: ");
+							scanf("%d", &poping);
+							system("cls");
+							// Wrong input checking.
+							if(poping < 1 || poping > 2)
+							{
+								system("cls");
+								printf("[ERROR] Please enter a number that is in the given range!\n\n");
+							}
+							else
+							{
+								exit = 1;
+							}
+						}
+						exit = 0;
+						
+						// If they want to place
 						if(poping == 1)
 						{
 							push(stack, place_token(board, player_one)); 
 						}
+						// Else if they want to POP
 						else
 						{
 							printf("---------- SCORE --------------\n");
@@ -141,35 +188,88 @@ int main(void)
 							printf("-------------------------------\n");
 							printf("-------- PLAYER 1 TURN --------\n");
 							printf("-------------------------------\n\n");
-							// Display the board
 							board_display(board);
 							printf("-------------------------------\n\n");
 							int col = 0;
 							// Ask which column to pop and remove the first token
-							printf("Enter on which column: ");
-							scanf("%d", &col);
+							while(exit == 0)
+							{
+								printf("Enter on which column from [0] to [6]: ");
+								scanf("%d", &col);
+								
+								system("cls");
+								// Wrong input checking
+								if(col < 0 || col > 6)
+								{
+									system("cls");
+									printf("[ERROR] Please enter a number that is in the given range!\n\n");
+								}
+								else
+								{
+									exit = 1;
+								}
+							}
+							exit = 0;
+							// Remove the bottom token
 							remove_token(board, player_one, col);
 						}
 					}
 						
 					system("cls");
 					printf("-------------------------------\n\n");
-					// Display the board
 					board_display(board);
 					printf("-------------------------------\n\n");
+					if(gamemode == 2)
+					{
+						system("cls");
+					}
 					
-					// UNDO not allowed for Pop Out
-					if(gamemode == 1 || gamemode == 3)
+					// UNDO not allowed for Pop Out, Competitive and VS bot
+					if(gamemode == 1 || gamemode == 4)
 					{
 						// Ask the user if they want to undo their move
-						printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
-						scanf("%d", &answer);
+						while(exit == 0)
+						{
+							printf("Do you want to undo your move?\nType: [1] for YES and [2] for NO\n");
+							scanf("%d", &answer);
+							
+							system("cls");
+							// Wrong input checking
+							if(answer < 1 || answer > 2)
+							{
+								system("cls");
+								printf("[ERROR] Please enter a number that is in the given range!\n\n");
+							}
+							else
+							{
+								exit = 1;
+							}
+						}
+						exit = 0;
+						
 						// If yes find the box
 						if(answer == 1)
 						{
-							// Ask user if they want to undo
-							printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
-							scanf("%d", &answer);
+							// Ask user if they want to undo once or more
+							while(exit == 0)
+							{
+								printf("Type [1] if you want to undo ONLY YOUR TURN\nor [2] if you want to undo MORE THAN ONCE.\n");
+								scanf("%d", &answer);
+								
+								system("cls");
+								// Wrong input checking
+								if(answer < 1 || answer > 2)
+								{
+									system("cls");
+									printf("[ERROR] Please enter a number that is in the given range!\n\n");
+								}
+								else
+								{
+									exit = 1;
+								}
+							}
+							exit = 0;
+							// If only once
 							if (answer == 1)
 							{
 								struct Stack* tempStack = createStack(100);
@@ -192,8 +292,23 @@ int main(void)
 								printf("-------------------------------\n\n");
 								board_display(board);
 								printf("-------------------------------\n");
-								printf("Are you happy with the change?\nType: 1 if yes\nType: 2 to redo\n");
-								scanf("%d", &answer_other);
+								while(exit == 0)
+								{
+									printf("Are you happy with the change?\nType: [1] if yes\nType: [2] to redo\n");
+									scanf("%d", &answer_other);
+									system("cls");
+									// Wrong input checking
+									if(answer_other < 1 || answer_other > 2)
+									{
+										system("cls");
+										printf("[ERROR] Please enter a number that is in the given range!\n\n");
+									}
+									else
+									{
+										exit = 1;
+									}
+								}
+								exit = 0;
 								// If not redo the changes
 								if(answer_other == 2)
 								{
@@ -201,12 +316,13 @@ int main(void)
 									int col = pop(tempStack);
 									// Push the value to the actual stack
 									push(stack, col);
-									// Place the token
+									// Place the token back to its place
 									place_token_2(board, player_one, col);
 									turn = 1;
 									counter++;
 								}
 							}
+							// If undo more than once
 							else
 							{
 								// Create temp stack to store popped values
@@ -230,6 +346,7 @@ int main(void)
 										}
 									}
 								}
+								// Pop 10 counter
 								counter = counter - num;
 								
 								// Show the board and ask if user is happy with changes
@@ -237,8 +354,23 @@ int main(void)
 								printf("-------------------------------\n\n");
 								board_display(board);
 								printf("-------------------------------\n");
-								printf("Are you happy with the changes?\nType: 1 if yes\nType: 2 to redo\n");
-								scanf("%d", &answer_other);
+								while(exit == 0)
+								{
+									printf("Are you happy with the change?\nType: [1] if yes\nType: [2] to redo\n");
+									scanf("%d", &answer_other);
+									system("cls");
+									// Wrong input checking
+									if(answer_other < 1 || answer_other > 2)
+									{
+										system("cls");
+										printf("[ERROR] Please enter a number that is in the given range!\n\n");
+									}
+									else
+									{
+										exit = 1;
+									}
+								}
+								exit = 0;
 								// If not redo all the changes
 								if(answer_other == 2)
 								{
@@ -279,54 +411,94 @@ int main(void)
 						system("cls");
 					}
 					
-					
 					// Check if four connect somewhere
 					win1 = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
 					if (win1 > 0)
 					{
-						system("cls");
-						// Increment  and display the score
-						player1_score++;
-						printf("---------- SCORE --------------\n");
-						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
-						printf("-------------------------------\n");
-						// Print message to the winner
-						printf("-------------------------------\n");
-						printf("--- PLAYER 1 IS THE WINNER! ---\n");
-						printf("-------------------------------\n\n");
-						// Display the board
+						// Versus person
+						if(gamemode != 5)
+						{
+							system("cls");
+							// Increment  and display the score
+							player1_score++;
+							printf("---------- SCORE --------------\n");
+							printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+							printf("-------------------------------\n");
+							// Print message to the winner
+							printf("-------------------------------\n");
+							printf("--- PLAYER 1 IS THE WINNER! ---\n");
+							printf("-------------------------------\n\n");
+						}
+						// Versus BOT
+						else
+						{
+							system("cls");
+							// Increment  and display the score
+							player1_score++;
+							printf("---------- SCORE --------------\n");
+							printf("------ Player: %d - Bot: %d -----\n", player1_score, bot_score);
+							printf("-------------------------------\n");
+							// Print message to the winner
+							printf("-------------------------------\n");
+							printf("---- PLAYER IS THE WINNER! ----\n");
+							printf("-------------------------------\n\n");
+						}
 						board_display(board);
 						printf("-------------------------------\n\n");
 						system("pause");
-						
-						game = 1;
-						
+						game = 1;	
 					}
 					answer = 0;
+					// Pop 10 checker if row is filled
 					if(counter == 7)
 					{
 						counter = 0;
 						row--;
 					}
 				}
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// PLAYER 2
+				
+				
+				
+				
+				
+				
+				// PLAYER 2
 				else
 				{
 					// Switch to Player One
 					turn = 0;
-					// Display score
-					printf("---------- SCORE --------------\n");
-					printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
-					printf("-------------------------------\n");
-					printf("-------------------------------\n");
-					printf("-------- PLAYER 2 TURN --------\n");
+					// Display score versus person
+					if(gamemode < 5)
+					{
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
+						printf("-------------------------------\n");
+						printf("-------- PLAYER 2 TURN --------\n");
+					}
+					
 					// Place the token and save the column in the stack for undo function DEFAULT
-					if(gamemode == 1)
+					if(gamemode == 1 || gamemode == 2)
 					{
 						push(stack, place_token(board, player_two)); 
 					}
+					// BOT moves
+					else if (gamemode == 5)
+					{	
+						push(stack, place_token_bot(board, peek(stack), difficulty));
+						system("cls");
+						printf("---------- SCORE --------------\n");
+						printf("------ Player: %d - Bot: %d -----\n", player1_score, bot_score);
+						printf("-------------------------------\n");
+						printf("-------------------------------\n");
+						printf("----------- BOT TURN ----------\n");
+						printf("-------------------------------\n\n");
+						board_display(board);
+						printf("\n-------------------------------\n\n");
+						system("pause");
+					}
 					// Place for POP 10
-					else if(gamemode == 3)
+					else if(gamemode == 4)
 					{
 						push(stack, place_token_pop_ten(board, player_two, row)); 
 						counter++; 
@@ -337,7 +509,7 @@ int main(void)
 						}
 					}
 					// POP OUT
-					else if (gamemode == 2)
+					else if (gamemode == 3)
 					{
 						system("cls");
 						printf("---------- SCORE --------------\n");
@@ -346,18 +518,34 @@ int main(void)
 						printf("-------------------------------\n");
 						printf("-------- PLAYER 2 TURN --------\n");
 						printf("-------------------------------\n\n");
-						// Display the board
 						board_display(board);
 						printf("-------------------------------\n\n");
 						// Ask the user if they want to pop or place
-						printf("Would you like to place or pop?\nType 1 to place or 2 to pop\n");
-						printf("Enter selection: ");
-						scanf("%d", &poping);
-						system("cls");
+						while(exit == 0)
+						{
+							printf("Would you like to place or pop?\nType [1] to place or [2] to pop\n");
+							printf("Enter selection: ");
+							scanf("%d", &poping);
+							system("cls");
+							
+							// Check for wrong input
+							if(poping < 1 || poping > 2)
+							{
+								system("cls");
+								printf("[ERROR] Please enter a number that is in the given range!\n\n");
+							}
+							else
+							{
+								exit = 1;
+							}
+						}
+						exit = 0;
+						// Placing
 						if(poping == 1)
 						{
 							push(stack, place_token(board, player_two)); 
 						}
+						// Poping
 						else
 						{
 							printf("---------- SCORE --------------\n");
@@ -371,29 +559,78 @@ int main(void)
 							printf("-------------------------------\n\n");
 							int col = 0;
 							// Ask for which column to remove the first token and remove it
-							printf("Enter on which column: ");
-							scanf("%d", &col);
+							while(exit == 0)
+							{
+								printf("Enter on which column from [0] to [6]: ");
+								scanf("%d", &col);
+								system("cls");
+								// Checking for wrong input
+								if(col < 0 || col > 6)
+								{
+									system("cls");
+									printf("[ERROR] Please enter a number that is in the given range!\n\n");
+								}
+								else
+								{
+									exit = 1;
+								}
+							}
+							exit = 0;
 							remove_token(board, player_one, col);
 						}
 					}
 					system("cls");
 					printf("-------------------------------\n\n");
-					// Display the board
 					board_display(board);
 					printf("-------------------------------\n\n");
+					if(gamemode == 2)
+					{
+						system("cls");
+					}
 					
-					// Undo not allowed for Pop Out
-					if(gamemode == 1 || gamemode == 3)
+					// UNDO not allowed for Pop Out, Competitive and VS bot
+					if(gamemode == 1 || gamemode == 4)
 					{
 						// Ask the user if they want to undo their move
-						printf("Do you want to undo your move?\nType: 1 for YES and 0 for NO\n");
-						scanf("%d", &answer);
+						while(exit == 0)
+						{
+							printf("Do you want to undo your move?\nType: [1] for YES and [2] for NO\n");
+							scanf("%d", &answer);
+							system("cls");
+							// Wrong input checking
+							if(answer < 1 || answer > 2)
+							{
+								system("cls");
+								printf("[ERROR] Please enter a number that is in the given range!\n\n");
+							}
+							else
+							{
+								exit = 1;
+							}
+						}
+						exit = 0;
 						// If yes find the box
 						if(answer == 1)
 						{
-							// Ask user if they want to undo
-							printf("Type 1 if you want to undo ONLY YOUR TURN\nor 2 if you want to undo MORE THAN ONCE.\n");
-							scanf("%d", &answer);
+							// Ask user if they want to undo once or more
+							while(exit == 0)
+							{
+								printf("Type [1] if you want to undo ONLY YOUR TURN\nor [2] if you want to undo MORE THAN ONCE.\n");
+								scanf("%d", &answer);
+								system("cls");
+								// Wrong input checking
+								if(answer < 1 || answer > 2)
+								{
+									system("cls");
+									printf("[ERROR] Please enter a number that is in the given range!\n\n");
+								}
+								else
+								{
+									exit = 1;
+								}
+							}
+							exit = 0;
+							// If once
 							if (answer == 1)
 							{
 								struct Stack* tempStack = createStack(100);
@@ -416,8 +653,24 @@ int main(void)
 								printf("-------------------------------\n\n");
 								board_display(board);
 								printf("-------------------------------\n");
-								printf("Are you happy with the change?\nType: 1 if yes\nType: 2 to redo\n");
-								scanf("%d", &answer_other);
+								while(exit == 0)
+								{
+									printf("Are you happy with the change?\nType: [1] if yes\nType: [2] to redo\n");
+									scanf("%d", &answer_other);
+									
+									system("cls");
+									// Wrong input checking
+									if(answer_other < 1 || answer_other > 2)
+									{
+										system("cls");
+										printf("[ERROR] Please enter a number that is in the given range!\n\n");
+									}
+									else
+									{
+										exit = 1;
+									}
+								}
+								exit = 0;
 								// If not redo the changes
 								if(answer_other == 2)
 								{
@@ -431,6 +684,7 @@ int main(void)
 									counter++;
 								}
 							}
+							// If more than once
 							else
 							{
 								// Create temp stack to store popped values
@@ -461,8 +715,23 @@ int main(void)
 								printf("-------------------------------\n\n");
 								board_display(board);
 								printf("-------------------------------\n");
-								printf("Are you happy with the changes?\nType: 1 if yes\nType: 2 to redo\n");
-								scanf("%d", &answer_other);
+								while(exit == 0)
+								{
+									printf("Are you happy with the change?\nType: [1] if yes\nType: [2] to redo\n");
+									scanf("%d", &answer_other);
+									system("cls");
+									// Wrong input checking
+									if(answer_other < 1 || answer_other > 2)
+									{
+										system("cls");
+										printf("[ERROR] Please enter a number that is in the given range!\n\n");
+									}
+									else
+									{
+										exit = 1;
+									}
+								}
+								exit = 0;
 								// If not redo all the changes
 								if(answer_other == 2)
 								{
@@ -507,16 +776,32 @@ int main(void)
 					win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
 					if (win2 > 0)
 					{
-						system("cls");
-						// Display and increment score
-						player2_score++;
-						printf("---------- SCORE --------------\n");
-						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
-						printf("-------------------------------\n");
-						// Print message to the winner
-						printf("-------------------------------\n");
-						printf("--- PLAYER 2 IS THE WINNER! ---\n");
-						printf("-------------------------------\n\n");
+						if(gamemode < 5)
+						{
+							system("cls");
+							// Display and increment score
+							player2_score++;
+							printf("---------- SCORE --------------\n");
+							printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+							printf("-------------------------------\n");
+							// Print message to the winner
+							printf("-------------------------------\n");
+							printf("--- PLAYER 2 IS THE WINNER! ---\n");
+							printf("-------------------------------\n\n");
+						}
+						else
+						{
+							system("cls");
+							// Increment  and display the score
+							bot_score++;
+							printf("---------- SCORE --------------\n");
+							printf("------ Player: %d - Bot: %d -----\n", player1_score, bot_score);
+							printf("-------------------------------\n");
+							// Print message to the winner
+							printf("-------------------------------\n");
+							printf("------ BOT IS THE WINNER! -----\n");
+							printf("-------------------------------\n\n");
+						}
 						// Display the board
 						board_display(board);
 						printf("-------------------------------\n\n");
@@ -524,6 +809,7 @@ int main(void)
 						game = 1;
 					}
 					answer = 0;
+					// Checking for pop 10
 					if(counter == 7)
 					{
 						counter = 0;
@@ -531,7 +817,8 @@ int main(void)
 					}
 				}
 			}
-			if(gamemode != 2)
+			// Saving replays (not for pop out)
+			if(gamemode < 3 || gamemode > 3)
 			{
 				// Pop all the elements from the stack and place them in a temp array in reversed order.
 				while(!isEmpty(stack))
@@ -566,14 +853,14 @@ int main(void)
 			system("cls");
 			quit = 1;
 			break;
-		// Replay the previous game
+		// Replay games
 		case 4:
 			// Replay not allowed for Pop Out
-			if(gamemode == 1 || gamemode == 3)
+			if(gamemode < 3 || gamemode > 3)
 			{
 				// Prompt the user to pick a replay
 				int number = 0;
-				printf("Enter the number of the game you want to see.\nFor the first game type: [1], for the second game: [2] and so on...\n");
+				printf("Enter the number of the game you want to see.\nFor the first game type: [1]\nfor the second game: [2] and so on...\n");
 				scanf("%d", &number);
 				// Reset board
 				board_create(board);
@@ -612,19 +899,19 @@ int main(void)
 				// If there are no more replays
 				if(array[number][j] == -1)
 				{
-					system("cls");
-					printf("-------------------------------------\n\n");
-					printf("----- There are no more replays -----\n\n");
-					printf("-------------------------------------\n\n");
-				}
-				else
-				{	
 					// Finish the replay
 					printf("-------------------------------\n\n");
 					board_display(board);
 					printf("-------------------------------\n\n");
 					printf("----- Replay has finished -----\n\n");
 					printf("-------------------------------\n\n");
+				}
+				if(array[number][j] == -1 && array[number][2] == -1)
+				{
+					system("cls");
+					printf("-------------------------------------\n\n");
+					printf("-------- There are no replays -------\n\n");
+					printf("-------------------------------------\n\n");
 				}
 				system("pause");
 			}
@@ -638,12 +925,55 @@ int main(void)
 		
 		// Gamemode
 		case 3:
-			printf("Select Gamemode:\n\n");
-			printf("[1] CONNECT FOUR NORMAL (DEFAULT)\n");
-			printf("[2] POP OUT (UNDO AND REPLAY NOT SUPPORTED)\n");
-			printf("[3] POP 10\n");
-			printf("\nEnter selection: ");
-			scanf("%d", &gamemode);
+			while(exit == 0)
+			{
+				printf("Select Gamemode:\n\n");
+				printf("[1] CONNECT FOUR NORMAL (DEFAULT)\n");
+				printf("[2] COMPETITIVE (UNDO NOT ALLOWED)\n");
+				printf("[3] POP OUT (UNDO AND REPLAY NOT SUPPORTED)\n");
+				printf("[4] POP 10\n");
+				printf("[5] VERSUS BOT\n");
+				printf("\nEnter selection: ");
+				scanf("%d", &gamemode);
+				// Wrong input checking
+				if(gamemode < 1 || gamemode > 5)
+				{
+					system("cls");
+					printf("[ERROR] Please enter a number that is in the given range!\n\n");
+				}
+				else
+				{
+					exit = 1;
+				}
+			}
+			exit = 0;
+			// If playing vs bot ask for difficulty
+			if(gamemode == 5)
+			{
+				system("cls");
+				player1_score = 0;
+				bot_score = 0;
+				printf("\nYou have selected to play vs the Computer!\n");
+				while(exit == 0)
+				{
+					printf("Please select a difficulty level:\n\n");
+					printf("[1] EASY (DEFAULT)\n");
+					printf("[2] HARD\n");
+					printf("\nEnter selection: ");
+					scanf("%d", &difficulty);
+					// Wrong input checking.
+					if(difficulty < 1 || difficulty > 2)
+					{
+						system("cls");
+						printf("[ERROR] Please enter a number that is in the given range!\n\n");
+					}
+					else
+					{
+						exit = 1;
+					}
+				}
+				exit = 0;
+			}
 		}			
 	}	
 	return 0;

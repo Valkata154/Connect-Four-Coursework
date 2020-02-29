@@ -45,7 +45,7 @@ void insert ( int *array , int pos , int num)
 {
 	int idx;
 
-	for ( idx = MAX -1; idx >= pos ; idx --)
+	for ( idx = MAX -1; idx >= pos; idx--)
 	{
 		array [idx] = array [idx -1];
 	}
@@ -206,7 +206,6 @@ int horizontal_checker(Board board[][COL], Box player)
 int vertical_checker(Board board[][COL], Box player)
 {
 	int occurances = 0;
-
 	// Go through each column
 	for (int column = 6; column >= 0; column--)
 	{
@@ -236,17 +235,88 @@ int vertical_checker(Board board[][COL], Box player)
 	return 0;
 }
 
-// Second method to place token in the board which is void and accepts column number
+/*
+*  PLACING AND REMOVING FUNCTIONS
+*/
+
+// Method to place token in the board for BOT
+int place_token_bot(Board board[][COL], int column, int difficulty)
+{
+	int quit = 0;
+	int col = 0;
+
+	while (quit == 0)
+	{
+		// Easy (puts the token anywhere on the board)
+		if(difficulty == 1)
+		{
+			col = rand() % 7;
+			// Place the token at the given column in the lowest available row
+			for (int row = ROW; row >= 0; row--)
+			{
+				// Check if box is available
+				if (board[row][col].token == DASH)
+				{
+					board[row][col].token = 'X';
+					quit = 1;
+					break;
+				}
+			}
+		}
+		// Hard (puts the token closer to the player's token)
+		else if (difficulty == 2)
+		{
+			// Randomly placing the token to the nearest 3 positions
+			col = column;
+			int r = rand() % 3;
+			if(r == 0)
+			{
+				col += 0;
+			}
+			else if (r == 1)
+			{
+				// Checking not to go out of the board
+				if(col != 6)
+				{
+					col += 1;
+				}
+			}
+			else
+			{
+				// Checking not to go out of the board
+				if(col != 0)
+				{
+					col -= 1;
+				}
+			}
+			// Place the token at the given column in the lowest available row
+			for (int row = ROW; row >= 0; row--)
+			{
+				// Check if box is available
+				if (board[row][col].token == DASH)
+				{
+					board[row][col].token = 'X';
+					quit = 1;
+					break;
+				}
+			}
+		}
+	}
+	// Return the column
+	return col;
+}
+
+// Method to remove token in the board which is void and accepts column number
 void remove_token(Board board[][COL], Box player, int column)
 {
 	int quit = 0;
 	
-	// Show the board after token has been placed
+	// Show the board
 	printf("-------------------------------\n\n");
 	board_display(board);
 	printf("-------------------------------\n\n");
 	
-		// Then change all the others
+		// Change
 		for(int i = 5; i >= 0; i--)
 		{
 			// Change the top-most to DASH
@@ -268,7 +338,7 @@ void place_token_2(Board board[][COL], Box player, int column)
 {
 	int quit = 0;
 	
-	// Show the board after token has been placed
+	// Show the board 
 	printf("-------------------------------\n\n");
 	board_display(board);
 	printf("-------------------------------\n\n");
@@ -297,7 +367,7 @@ int place_token_pop_ten(Board board[][COL], Box player, int r)
 	int column = 0;
 	int quit = 0;
 	
-	// Show the board after token has been placed
+	// Show the board
 	printf("-------------------------------\n\n");
 	board_display(board);
 	printf("-------------------------------\n\n");
@@ -308,10 +378,11 @@ int place_token_pop_ten(Board board[][COL], Box player, int r)
 		printf("Enter column number below:\n");
 		scanf("%d", &column);
 		
+		// Wrong input checking
 		if(column < 0 || column > 6)
 		{
 			printf("\nERROR - Invalid Number!\n");
-			printf("Please enter a number between 0 and 6.\n\n");
+			printf("Please enter a number between [0] and [6].\n\n");
 		}
 		else
 		{
@@ -340,7 +411,7 @@ int place_token(Board board[][COL], Box player)
 	int column = 0;
 	int quit = 0;
 	
-	// Show the board after token has been placed
+	// Show the board 
 	printf("-------------------------------\n\n");
 	board_display(board);
 	printf("-------------------------------\n\n");
@@ -351,10 +422,11 @@ int place_token(Board board[][COL], Box player)
 		printf("Enter column number below:\n");
 		scanf("%d", &column);
 		
+		// Wrong input checking
 		if(column < 0 || column > 6)
 		{
 			printf("\nERROR - Invalid Number!\n");
-			printf("Please enter a number between 0 and 6.\n\n");
+			printf("Please enter a number between [0] and [6].\n\n");
 		}
 		else
 		{
@@ -429,14 +501,18 @@ void rules()
 	// Display rules
 	printf("\n----------------------------------------------------\n\n");
 	printf("This is a two player game in a terminal.\n");
-	printf("You can play versus your friend.\n");
+	printf("It has various game modes.\n");
+	printf("For some of them undo/redo functionality is supported.\n");
+	printf("For some of them replay functionality is supported.\n");
 	printf("Everyone takes turns to drop down tokens.\n");
 	printf("After you drop a piece you will be asked,\n");
 	printf("if you want to undo your move.\n");
 	printf("You can make one or multiple redo's.\n");
 	printf("You can undo a redo after making it.\n");
-	printf("You can view your last played game.\n");
-	printf("When viewing a game you wont see the redo's and undo's.\n");	
+	printf("You can also view all the games you have played.\n");
+	printf("When viewing you wont be able to see\n");
+	printf("the undo's and redo's you have made,\n");
+	printf("only the final decisions.\n");
 	printf("To win a game, you have to have 4 tokens connecting\n");
 	printf("in any direction without interruption.\n");
 	printf("Hope you have fun while playing!\n");
@@ -447,6 +523,7 @@ void rules()
 	system("cls");
 }
 
+// Method to display credits
 void credits()
 {
 	// Display credits

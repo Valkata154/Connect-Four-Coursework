@@ -61,4 +61,5 @@ void insert(int *array , int pos , int num);
 void place_token_2(Board board[][COL], Box player, int column);
 int place_token_pop_ten(Board board[][COL], Box player, int r);
 void remove_token(Board board[][COL], Box player, int column);
+int place_token_bot(Board board[][COL], int column, int difficulty);
 
