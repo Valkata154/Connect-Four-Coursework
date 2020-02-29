@@ -10,6 +10,7 @@
 
 #define ROW 6
 #define COL 7
+#define COL5 9
 
 #define DASH '-'
 
@@ -43,6 +44,7 @@ void menu();
 void rules();
 void credits();
 int place_token(Board board[][COL], Box player);
+void place_token_five(Board board[][COL5], Box player);
 void board_display(Board board[][COL]);
 void board_create(Board board[][COL]);
 int vertical_checker(Board board[][COL], Box player);
@@ -62,4 +64,11 @@ void place_token_2(Board board[][COL], Box player, int column);
 int place_token_pop_ten(Board board[][COL], Box player, int r);
 void remove_token(Board board[][COL], Box player, int column);
 int place_token_bot(Board board[][COL], int column, int difficulty);
+
+void board_display_five(Board board[][COL5]);
+void board_create_five(Board board[][COL5]);
+int vertical_checker_five(Board board[][COL5], Box player);
+int diagonal_checker_five(Board board[][COL5], Box player);
+int horizontal_checker(Board board[][COL], Box player);
+void place_token_five_2(Board board[][COL5], Box player, int column);
 

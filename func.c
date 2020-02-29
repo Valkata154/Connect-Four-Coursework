@@ -113,10 +113,10 @@ int diagonal_checker(Board board[][COL], Box player)
 	int occurances = 0;
 	
 	// From LEFT to RIGHT go through each column
-	for (int column = 0; column <= 6; column++)
+	for (int column = 0; column <= 3; column++)
 	{
 		// Go through each row
-		for (int row = 5; row >= 0; row--)
+		for (int row = 5; row > 2; row--)
 		{
 			// Check the diagonal boxes if they connect
 			for (int i = 0; i < 4; i++)
@@ -140,10 +140,10 @@ int diagonal_checker(Board board[][COL], Box player)
 	}
 
 	// From RIGHT to LEFT go through each column
-	for (int column = 6; column >= 0; column--)
+	for (int column = 6; column >= 3; column--)
 	{
 		// Go through each row
-		for (int row = 5; row >= 0; row--)
+		for (int row = 5; row >= 3; row--)
 		{
 			// Check the diagonal boxes if they connect
 			for (int i = 0; i < 4; i++)
@@ -168,6 +168,68 @@ int diagonal_checker(Board board[][COL], Box player)
 	return 0;
 }
 
+// Method to check diagonally for a winner FOR FIVE IN A ROW
+int diagonal_checker_five(Board board[][COL5], Box player)
+{
+	int occurances = 0;
+	
+	// From LEFT to RIGHT go through each column
+	for (int column = 0; column <= 4; column++)
+	{
+		// Go through each row
+		for (int row = 5; row > 1; row--)
+		{
+			// Check the diagonal boxes if they connect
+			for (int i = 0; i < 5; i++)
+			{
+				if (board[row - i][column + i].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 5 connected return that there is a winner
+				if (occurances == 5)
+				{
+					return 1;
+				}
+			}
+			// If less than 5 reset the occurances
+			if (occurances < 5)
+			{
+				occurances = 0;
+			}
+		}
+	}
+
+	// From RIGHT to LEFT go through each column
+	for (int column = 8; column >= 4; column--)
+	{
+		// Go through each row
+		for (int row = 5; row >= 2; row--)
+		{
+			// Check the diagonal boxes if they connect
+			for (int i = 0; i < 5; i++)
+			{
+				if (board[row - i][column - i].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 5 connected return that there is a winner
+				if (occurances == 5)
+				{
+					return 1;
+				}
+			}
+			// If less than 5 reset the occurances
+			if (occurances < 5)
+			{
+				occurances = 0;
+			}
+		}
+	}
+	return 0;
+}
+
+
 // Method to check horizontally for a winner
 int horizontal_checker(Board board[][COL], Box player)
 {
@@ -177,7 +239,7 @@ int horizontal_checker(Board board[][COL], Box player)
 	for (int row = 5; row >= 0; row--)
 	{
 		// Go through each column
-		for (int column = 6; column >= 0; column--)
+		for (int column = 6; column >= 3; column--)
 		{
 			// Check the side boxes if they connect
 			for (int i = 0; i < 4; i++)
@@ -202,6 +264,40 @@ int horizontal_checker(Board board[][COL], Box player)
 	return 0;
 }
 
+// Method to check horizontally for a winner for FIVE IN A ROW
+int horizontal_checker_five(Board board[][COL5], Box player)
+{
+	int occurances = 0;
+
+	// Go through each row
+	for (int row = 5; row >= 0; row--)
+	{
+		// Go through each column
+		for (int column = 8; column >= 4; column--)
+		{
+			// Check the side boxes if they connect
+			for (int i = 0; i < 5; i++)
+			{
+				if (board[row][column - i].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 5 connected return that there is a winner
+				if (occurances == 5)
+				{
+					return 1;
+				}
+			}
+			// If less than 5 reset the occurances
+			if (occurances < 5)
+			{
+				occurances = 0;
+			}
+		}
+	}
+	return 0;
+}
+
 // Method to check vertically for a winner
 int vertical_checker(Board board[][COL], Box player)
 {
@@ -210,7 +306,7 @@ int vertical_checker(Board board[][COL], Box player)
 	for (int column = 6; column >= 0; column--)
 	{
 		// Go through each row
-		for (int row = 5; row >= 0; row--)
+		for (int row = 5; row >= 2; row--)
 		{
 			// Check the lower boxes if they connect
 			for (int i = 0; i < 4; i++)
@@ -227,6 +323,39 @@ int vertical_checker(Board board[][COL], Box player)
 			}
 			// If less than 4 reset the occurances
 			if (occurances < 4)
+			{
+				occurances = 0;
+			}
+		}
+	}
+	return 0;
+}
+
+// Method to check vertically for a winner for FIVE IN A ROW
+int vertical_checker_five(Board board[][COL5], Box player)
+{
+	int occurances = 0;
+	// Go through each column
+	for (int column = 8; column >= 0; column--)
+	{
+		// Go through each row
+		for (int row = 5; row >= 1; row--)
+		{
+			// Check the lower boxes if they connect
+			for (int i = 0; i < 5; i++)
+			{
+				if (board[row - i][column].token == player.token)
+				{
+					occurances = occurances + 1;
+				}
+				// If 5 connected return that there is a winner
+				if (occurances == 5)
+				{
+					return 1;
+				}
+			}
+			// If less than 5 reset the occurances
+			if (occurances < 5)
 			{
 				occurances = 0;
 			}
@@ -346,18 +475,17 @@ void place_token_2(Board board[][COL], Box player, int column)
 	while (quit == 0)
 	{
 		
-			// Place the token at the given column in the lowest available row
-			for (int row = ROW; row >= 0; row--)
+		// Place the token at the given column in the lowest available row
+		for (int row = ROW; row >= 0; row--)
+		{
+			// Check if box is available
+			if (board[row][column].token == DASH)
 			{
-				// Check if box is available
-				if (board[row][column].token == DASH)
-				{
-					board[row][column].token = player.token;
-					quit = 1;
-					break;
-				}
+				board[row][column].token = player.token;
+				quit = 1;
+				break;
 			}
-		
+		}
 	}
 }
 
@@ -405,6 +533,46 @@ int place_token_pop_ten(Board board[][COL], Box player, int r)
 	return column;
 }
 
+// Method to place token in the board for FIVE IN A ROW
+void place_token_five(Board board[][COL5], Box player)
+{
+	int column = 0;
+	int quit = 0;
+	
+	// Show the board 
+	printf("-------------------------------\n\n");
+	board_display_five(board);
+	printf("-------------------------------\n\n");
+
+	while (quit == 0)
+	{
+		// Read user input for column
+		printf("Enter column number below:\n");
+		scanf("%d", &column);
+		
+		// Wrong input checking
+		if(column < 1 || column > 7)
+		{
+			printf("\nERROR - Invalid Number!\n");
+			printf("Please enter a number between [1] and [7].\n\n");
+		}
+		else
+		{
+			// Place the token at the given column in the lowest available row
+			for (int row = ROW-1; row >= 0; row--)
+			{
+				// Check if box is available
+				if (board[row][column].token == DASH)
+				{
+					board[row][column].token = player.token;
+					quit = 1;
+					break;
+				}
+			}
+		}
+	}
+}
+
 // Method to place token in the board
 int place_token(Board board[][COL], Box player)
 {
@@ -422,7 +590,7 @@ int place_token(Board board[][COL], Box player)
 		printf("Enter column number below:\n");
 		scanf("%d", &column);
 		
-		// Wrong input checking
+		
 		if(column < 0 || column > 6)
 		{
 			printf("\nERROR - Invalid Number!\n");
@@ -451,6 +619,70 @@ int place_token(Board board[][COL], Box player)
 /*
 *  BOARD FUNCTIONS
 */
+
+// Method to initialize the empty board with dashes for POP 5
+void board_create_five(Board board[][COL5])
+{
+	// Go through all rows and columns and add a dash
+	for (int row = 0; row < ROW; row++)
+	{
+		for (int column = 0; column < COL5; column++)
+		{
+			if(column == 0)
+			{
+				if(row % 2 == 0)
+				{
+					board[row][column].token = 'X';
+				}
+				else
+				{
+					board[row][column].token = 'O';
+				}
+			}
+			else if(column == 8)
+			{
+				if(row % 2 == 1)
+				{
+					board[row][column].token = 'X';
+				}
+				else
+				{
+					board[row][column].token = 'O';
+				}
+			}
+			else
+			{
+				board[row][column].token = DASH;
+			}
+		}
+	}
+}
+
+// Method to display the board for POP 5
+void board_display_five(Board board[][COL5])
+{
+	// Print numbers
+	printf("  | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |\n\n");
+	// Go through all rows and columns and print them
+	for (int row = 0; row < ROW; row++)
+	{
+		// Print number on the side
+		printf("%d ", row);
+		for (int column = 0; column < COL5 ; column++)
+		{
+			// If statement in order to print side line on the last iteration
+			if(column < COL5 - 1)
+			{	
+				printf("| %c ", board[row][column]);
+			}
+			else
+			{
+				printf("| %c |", board[row][column]);
+			}
+		}
+		printf("\n\n");
+	}
+}
 
 // Method to initialize the empty board with dashes
 void board_create(Board board[][COL])
@@ -502,8 +734,12 @@ void rules()
 	printf("\n----------------------------------------------------\n\n");
 	printf("This is a two player game in a terminal.\n");
 	printf("It has various game modes.\n");
-	printf("For some of them undo/redo functionality is supported.\n");
-	printf("For some of them replay functionality is supported.\n");
+	printf("- Normal - replay and undo/redo are supported.\n");
+	printf("- Competitive - undo/redo are not allowed.\n");
+	printf("- Pop out - undo/redo are NOT supported.\n");
+	printf("- Pop 10 - replay and undo/redo are supported.\n");
+	printf("- 5-in-a-Row - replay and undo/redo are NOT supported.\n");
+	printf("- VS BOT - undo/redo are NOT supported.\n");
 	printf("Everyone takes turns to drop down tokens.\n");
 	printf("After you drop a piece you will be asked,\n");
 	printf("if you want to undo your move.\n");

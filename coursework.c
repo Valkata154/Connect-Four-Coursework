@@ -3,8 +3,14 @@
 *  @author: Valeri Vladimirov 40399682
 *  Last Modified: 29/02/2019
 *  Purpose: Connect Four game implementation in C.
-*  Functionality: Add piece, check for connection of four,
-*  undo move, play again.
+*  Functionality: 
+*	
+*	- Normal Play, Competitive Play, Versus Bot Play
+*	- Pop Out, Pop 10, 5-in-a-Row
+*	- Undo once, Undo more than once, redo the undo (depending on game mode)
+*	- Place tokens, remove tokens
+*	- Diagonal, horizontal, vertical checks
+*	- Replay games from the start (depending on game mode)
 *
 */
 
@@ -22,32 +28,39 @@ int main(void)
 	int win1 = 0;
 	int win2 = 0;
 	int restart = 0;
+	int player_score = 0;
 	int player1_score = 0;
 	int player2_score = 0;
 	int bot_score = 0;
 	int last_column = 0;
-	int stackItems = 0;
-	int arrayTemp[MAX];
+	int stack_items = 0;
+	int array_temp[MAX];
 	int gamemode = 1;
 	int row = 5;
 	int counter = 0;
 	int poping = 0;
-	int gameNum = 1;
+	int game_num = 1;
 	int difficulty = 1;
 	int exit = 0;
+	int game_counter = 0;
 	
 	struct Stack* stack = createStack(100);
 	
 	Board board[ROW][COL] = { '\0' };
+	Board board2[ROW][COL5] = { '\0' };
 	Box player_one = { '/0' };
 	Box player_two = { '/0' };
+
+	// board_create_five(board2);
+	// board_display_five(board2);
 
 	// Initialize tokens
 	player_one.token = PLAYER1;
 	player_two.token = PLAYER2;
 	
-	// Fill the board with dashes (meaning the cells are empty)
+	// Fill the boards with dashes (meaning the cells are empty)
 	board_create(board);
+	board_create_five(board2);
 	
 	// Create array for 15 replays and 42moves and init it with -1's
 	int array[15][MAX];				
@@ -85,22 +98,31 @@ int main(void)
 		case 1:
 			// Reset board and variables on new game
 			board_create(board);
+			board_create_five(board2);
 			game = 0;
 			turn = 0;
 			counter = 0;
+			game_counter = 0;	
 			row = 5;
 			printf("\n-------------------------------\n");
 			printf("--------- GAME STARTED --------\n");
 			printf("-------------------------------\n\n");
 			// Display board
-			board_display(board);
+			if(gamemode == 6)
+			{
+				board_display_five(board2);
+			}
+			else
+			{
+				board_display(board);
+			}
 			system("pause");
 			system("cls");
 			// While playing switch turns between players until someone wins
 			while (game == 0)
 			{
-				stackItems = 0;
-				arrayTemp[MAX];
+				stack_items = 0;
+				array_temp[MAX];
 				
 				// PLAYER 1
 				if (turn == 0)
@@ -130,12 +152,19 @@ int main(void)
 					if(gamemode == 1 || gamemode == 5 || gamemode == 2)
 					{
 						push(stack, place_token(board, player_one)); 
+						game_counter++;
+					}
+					else if(gamemode ==6)
+					{
+						place_token_five(board2, player_one);
+						game_counter++;
 					}
 					// Placing for POP 10
 					else if(gamemode == 4)
 					{
 						push(stack, place_token_pop_ten(board, player_one, row)); 
 						counter++; 
+						game_counter++;
 						if(counter == 7)
 						{
 							counter = 0;
@@ -178,6 +207,7 @@ int main(void)
 						if(poping == 1)
 						{
 							push(stack, place_token(board, player_one)); 
+							game_counter++;
 						}
 						// Else if they want to POP
 						else
@@ -212,6 +242,7 @@ int main(void)
 							exit = 0;
 							// Remove the bottom token
 							remove_token(board, player_one, col);
+							game_counter--;
 						}
 					}
 						
@@ -219,12 +250,12 @@ int main(void)
 					printf("-------------------------------\n\n");
 					board_display(board);
 					printf("-------------------------------\n\n");
-					if(gamemode == 2)
+					if(gamemode == 2 || gamemode == 6)
 					{
 						system("cls");
 					}
 					
-					// UNDO not allowed for Pop Out, Competitive and VS bot
+					// UNDO not allowed for Pop Out, Competitive and VS bot and 5-IN-A-ROW
 					if(gamemode == 1 || gamemode == 4)
 					{
 						// Ask the user if they want to undo their move
@@ -284,6 +315,7 @@ int main(void)
 										push(tempStack, pop(stack));
 										turn = 0;
 										counter--;
+										game_counter--;
 										break;
 									}
 								}
@@ -320,6 +352,7 @@ int main(void)
 									place_token_2(board, player_one, col);
 									turn = 1;
 									counter++;
+									game_counter++;
 								}
 							}
 							// If undo more than once
@@ -348,6 +381,7 @@ int main(void)
 								}
 								// Pop 10 counter
 								counter = counter - num;
+								game_counter = game_counter - num;
 								
 								// Show the board and ask if user is happy with changes
 								system("cls");
@@ -391,6 +425,7 @@ int main(void)
 								
 									}
 									turn = 1;
+									game_counter = game_counter + num;
 									counter = counter + num;
 								}
 								
@@ -411,12 +446,20 @@ int main(void)
 						system("cls");
 					}
 					
-					// Check if four connect somewhere
-					win1 = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
+					if(gamemode == 6)
+					{
+						// Check if 5 connect somewhere
+						win1 = vertical_checker_five(board2, player_one) + horizontal_checker_five(board2, player_one) + diagonal_checker_five(board2, player_one);
+					}
+					else
+					{
+						// Check if four connect somewhere
+						win1 = vertical_checker(board, player_one) + horizontal_checker(board, player_one) + diagonal_checker(board, player_one);
+					}
 					if (win1 > 0)
 					{
 						// Versus person
-						if(gamemode != 5)
+						if(gamemode < 5 || gamemode == 6)
 						{
 							system("cls");
 							// Increment  and display the score
@@ -443,10 +486,39 @@ int main(void)
 							printf("---- PLAYER IS THE WINNER! ----\n");
 							printf("-------------------------------\n\n");
 						}
-						board_display(board);
+						if(gamemode == 6)
+						{
+							board_display_five(board2);
+						}
+						else
+						{
+							board_display(board);
+						}
 						printf("-------------------------------\n\n");
 						system("pause");
 						game = 1;	
+					}
+					if(game_counter == 42 && win1 == 0)
+					{
+						system("cls");
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
+						// Print message to the winner
+						printf("-------------------------------\n");
+						printf("-------- GAME FINISHED  -------\n");
+						printf("------- WITHOUT A WINNER  -----\n");
+						printf("-------------------------------\n\n");
+						game = 1;
+						
+						if(gamemode == 6)
+						{
+							board_display_five(board2);
+						}
+						else
+						{
+							board_display(board);
+						}
 					}
 					answer = 0;
 					// Pop 10 checker if row is filled
@@ -468,7 +540,7 @@ int main(void)
 					// Switch to Player One
 					turn = 0;
 					// Display score versus person
-					if(gamemode < 5)
+					if(gamemode < 5 || gamemode == 6)
 					{
 						printf("---------- SCORE --------------\n");
 						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
@@ -478,14 +550,22 @@ int main(void)
 					}
 					
 					// Place the token and save the column in the stack for undo function DEFAULT
-					if(gamemode == 1 || gamemode == 2)
+					if(gamemode == 1 || gamemode == 2 )
 					{
 						push(stack, place_token(board, player_two)); 
+						game_counter++;
+						
+					}
+					else if(gamemode ==6)
+					{
+						place_token_five(board2, player_two);
+						game_counter++;						
 					}
 					// BOT moves
 					else if (gamemode == 5)
 					{	
 						push(stack, place_token_bot(board, peek(stack), difficulty));
+						game_counter++;	
 						system("cls");
 						printf("---------- SCORE --------------\n");
 						printf("------ Player: %d - Bot: %d -----\n", player1_score, bot_score);
@@ -500,7 +580,8 @@ int main(void)
 					// Place for POP 10
 					else if(gamemode == 4)
 					{
-						push(stack, place_token_pop_ten(board, player_two, row)); 
+						push(stack, place_token_pop_ten(board, player_two, row));
+						game_counter++;							
 						counter++; 
 						if(counter == 7)
 						{
@@ -544,6 +625,7 @@ int main(void)
 						if(poping == 1)
 						{
 							push(stack, place_token(board, player_two)); 
+							game_counter++;	
 						}
 						// Poping
 						else
@@ -577,13 +659,14 @@ int main(void)
 							}
 							exit = 0;
 							remove_token(board, player_one, col);
+							game_counter--;	
 						}
 					}
 					system("cls");
 					printf("-------------------------------\n\n");
 					board_display(board);
 					printf("-------------------------------\n\n");
-					if(gamemode == 2)
+					if(gamemode == 2 || gamemode == 6)
 					{
 						system("cls");
 					}
@@ -645,6 +728,7 @@ int main(void)
 										push(tempStack, pop(stack));
 										turn = 1;
 										counter--;
+										game_counter--;	
 										break;
 									}
 								}
@@ -682,6 +766,7 @@ int main(void)
 									place_token_2(board, player_two, col);
 									turn = 0;
 									counter++;
+									game_counter++;	
 								}
 							}
 							// If more than once
@@ -709,6 +794,7 @@ int main(void)
 									}
 								}
 								counter = counter - num;
+								game_counter = game_counter - num;	
 								
 								// Show the board and ask if user is happy with changes
 								system("cls");
@@ -753,6 +839,7 @@ int main(void)
 									}
 									turn = 0;
 									counter = counter + num;
+									game_counter = game_counter + num;	
 								}
 								
 								// Check to which players belongs  the last element to figure out which turn to play
@@ -772,11 +859,19 @@ int main(void)
 						system("cls");
 					}
 					
-					// Check if four connect somewhere
-					win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
+					if(gamemode == 6)
+					{
+						// Check if 5 connect somewhere
+						win2 = vertical_checker_five(board2, player_two) + horizontal_checker_five(board2, player_two) + diagonal_checker_five(board2, player_two);
+					}
+					else
+					{
+						// Check if four connect somewhere
+						win2 = vertical_checker(board, player_two) + horizontal_checker(board, player_two) + diagonal_checker(board, player_two);
+					}
 					if (win2 > 0)
 					{
-						if(gamemode < 5)
+						if(gamemode < 5 || gamemode == 6)
 						{
 							system("cls");
 							// Display and increment score
@@ -803,10 +898,39 @@ int main(void)
 							printf("-------------------------------\n\n");
 						}
 						// Display the board
-						board_display(board);
+						if(gamemode == 6)
+						{
+							board_display_five(board2);
+						}
+						else
+						{
+							board_display(board);
+						}
 						printf("-------------------------------\n\n");
 						system("pause");
 						game = 1;
+					}
+					if(game_counter == 42 && win2 == 0)
+					{
+						system("cls");
+						printf("---------- SCORE --------------\n");
+						printf("-- Player 1: %d - Player 2: %d --\n", player1_score, player2_score);
+						printf("-------------------------------\n");
+						// Print message to the winner
+						printf("-------------------------------\n");
+						printf("-------- GAME FINISHED  -------\n");
+						printf("------- WITHOUT A WINNER  -----\n");
+						printf("-------------------------------\n\n");
+						game = 1;
+						
+						if(gamemode == 6)
+						{
+							board_display_five(board2);
+						}
+						else
+						{
+							board_display(board);
+						}
 					}
 					answer = 0;
 					// Checking for pop 10
@@ -817,26 +941,26 @@ int main(void)
 					}
 				}
 			}
-			// Saving replays (not for pop out)
-			if(gamemode < 3 || gamemode > 3)
+			// Saving replays (not for pop out and 5-in-a-row)
+			if(gamemode < 3 || gamemode > 3 || gamemode < 6)
 			{
 				// Pop all the elements from the stack and place them in a temp array in reversed order.
 				while(!isEmpty(stack))
 				{
-					stackItems++;
-					insert(arrayTemp, stackItems, peek(stack));
+					stack_items++;
+					insert(array_temp, stack_items, peek(stack));
 					pop(stack);
 				}
 				int n = 0;
 				
 				// Get the elements from the temp array in the correct order
-				for(int i = stackItems; i >= 0; i--)
+				for(int i = stack_items; i >= 0; i--)
 				{
-					array[gameNum][n] = arrayTemp[i];
+					array[game_num][n] = array_temp[i];
 					n++;
 				}
 				// Increment to the next game
-				gameNum++;
+				game_num++;
 			}
 			break;
 		
@@ -856,7 +980,7 @@ int main(void)
 		// Replay games
 		case 4:
 			// Replay not allowed for Pop Out
-			if(gamemode < 3 || gamemode > 3)
+			if(gamemode < 3 || gamemode > 3 || gamemode > 5)
 			{
 				// Prompt the user to pick a replay
 				int number = 0;
@@ -928,15 +1052,16 @@ int main(void)
 			while(exit == 0)
 			{
 				printf("Select Gamemode:\n\n");
-				printf("[1] CONNECT FOUR NORMAL (DEFAULT)\n");
-				printf("[2] COMPETITIVE (UNDO NOT ALLOWED)\n");
-				printf("[3] POP OUT (UNDO AND REPLAY NOT SUPPORTED)\n");
+				printf("[1] CONNECT FOUR NORMAL\n");
+				printf("[2] COMPETITIVE\n");
+				printf("[3] POP OUT\n");
 				printf("[4] POP 10\n");
 				printf("[5] VERSUS BOT\n");
+				printf("[6] 5-IN-A-ROW\n");
 				printf("\nEnter selection: ");
 				scanf("%d", &gamemode);
 				// Wrong input checking
-				if(gamemode < 1 || gamemode > 5)
+				if(gamemode < 1 || gamemode > 6)
 				{
 					system("cls");
 					printf("[ERROR] Please enter a number that is in the given range!\n\n");
@@ -951,7 +1076,7 @@ int main(void)
 			if(gamemode == 5)
 			{
 				system("cls");
-				player1_score = 0;
+				player_score = 0;
 				bot_score = 0;
 				printf("\nYou have selected to play vs the Computer!\n");
 				while(exit == 0)
